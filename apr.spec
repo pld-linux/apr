@@ -8,15 +8,14 @@ License:	Apache v2.0
 Group:		Libraries
 Source0:	http://www.apache.org/dist/apr/%{name}-%{version}.tar.gz
 # Source0-md5:	ccd5c21292581be4ba9db10ad5cc8ced
-#Patch0:		%{name}-0.9.4_0.9.5.patch.gz
-#Patch1:		%{name}-link.patch
-Patch2:		%{name}-metuxmpm.patch
-#Patch3:		%{name}-modes.patch	-- obsolete
+Patch0:		%{name}-link.patch
+Patch1:		%{name}-metuxmpm.patch
 URL:		http://apr.apache.org/
 BuildRequires:	autoconf >= 2.13
 BuildRequires:	automake
 BuildRequires:	libtool >= 1.3.3
 BuildRequires:	perl-base
+BuildRequires:	python
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_includedir	/usr/include/apr
@@ -69,9 +68,8 @@ Statyczna biblioteka apr.
 
 %prep
 %setup -q
-#patch0 -p1
-#patch1 -p1
-%patch2 -p1
+%patch0 -p1
+%patch1 -p1
 
 %build
 install /usr/share/automake/config.* build
@@ -88,12 +86,13 @@ rm -rf $RPM_BUILD_ROOT
 
 ln -sf %{_bindir}/libtool $RPM_BUILD_ROOT%{_datadir}/libtool
 
-install build/{*apr*.m4,*.awk,*.sh,config.*} $RPM_BUILD_ROOT%{_datadir}/build-1
-ln -sf build-1 $RPM_BUILD_ROOT%{_datadir}/build
+mv -f $RPM_BUILD_ROOT%{_datadir}/build-1 $RPM_BUILD_ROOT%{_datadir}/build
+install build/{*apr*.m4,*.awk,*.sh,config.*} $RPM_BUILD_ROOT%{_datadir}/build
+ln -sf build $RPM_BUILD_ROOT%{_datadir}/build-1
 
 %{__perl} -pi -e 's@^(APR_SOURCE_DIR=).*@$1"%{_datadir}"@' $RPM_BUILD_ROOT%{_bindir}/apr-config
 %{__perl} -pi -e 's@^(apr_builddir|apr_builders)=.*@$1=%{_datadir}/build-1@' \
-	$RPM_BUILD_ROOT%{_datadir}/build-1/apr_rules.mk
+	$RPM_BUILD_ROOT%{_datadir}/build/apr_rules.mk
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -114,14 +113,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/apr.exp
 %{_includedir}
 %dir %{_datadir}
-%dir %{_datadir}/build-1
-%{_datadir}/build-1/*.mk
-%{_datadir}/build-1/*.m4
-%{_datadir}/build-1/*.awk
-%{_datadir}/build
-%attr(755,root,root) %{_datadir}/build-1/config.*
-%attr(755,root,root) %{_datadir}/build-1/*.sh
-%attr(755,root,root) %{_datadir}/build-1/libtool
+%dir %{_datadir}/build
+%{_datadir}/build/*.mk
+%{_datadir}/build/*.m4
+%{_datadir}/build/*.awk
+%attr(755,root,root) %{_datadir}/build/config.*
+%attr(755,root,root) %{_datadir}/build/*.sh
+%attr(755,root,root) %{_datadir}/build/libtool
+%{_datadir}/build-1
 %{_pkgconfigdir}/apr-1.pc
 
 %files static
