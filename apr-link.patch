@@ -1,16 +1,29 @@
-diff -ur apr-0.9.4.org/configure.in apr-0.9.4/configure.in
---- apr-0.9.4.org/configure.in	2004-04-15 23:58:33.496668112 +0200
-+++ apr-0.9.4/configure.in	2004-04-16 00:02:06.178335584 +0200
-@@ -597,7 +597,7 @@
+--- apr/configure.in.orig	2003-09-02 12:19:46.000000000 +0200
++++ apr/configure.in	2003-10-05 22:35:55.808884648 +0200
+@@ -463,11 +463,9 @@
+ dnl It should check for LIBS being empty and set LIBS equal to the new value 
+ dnl without the extra " " in that case, but they didn't do that.  So, we
+ dnl end up LIBS="-lm -lcrypt -lnsl  -ldl" which is an annoyance.
+-AC_CHECK_LIB(resolv, res_init)
+-AC_CHECK_LIB(nsl, gethostbyname)
++dnl AC_CHECK_LIB(resolv, res_init)  -- not used by apr
+ AC_SEARCH_LIBS(gethostname, nsl)
+-AC_CHECK_LIB(socket, socket)
+-AC_SEARCH_LIBS(crypt, crypt ufc)
++AC_SEARCH_LIBS(socket, socket)
+ AC_CHECK_LIB(truerand, main)
+ AC_SEARCH_LIBS(modf, m)
+ AC_SEARCH_LIBS(sqrt, m)
+@@ -604,7 +602,7 @@
  
  # The real-time POSIX extensions (e.g. shm_*, sem_*) may only
  # be available if linking against librt.
 -AC_SEARCH_LIBS(shm_open, rt)
-+dnl AC_SEARCH_LIBS(shm_open, rt)
++dnl AC_SEARCH_LIBS(shm_open, rt)  -- not used by apr
  
  case $host in
   *-sysv*)
-@@ -856,10 +856,13 @@
+@@ -863,10 +861,13 @@
  if test "$strerror_r" = "1"; then
    APR_CHECK_STRERROR_R_RC
  fi
@@ -24,4 +37,3 @@ diff -ur apr-0.9.4.org/configure.in apr-0.9.4/configure.in
  AC_CHECK_FUNCS(mmap, [ mmap="1" ], [ mmap="0" ])
  if test "$native_mmap_emul" = "1"; then
      mmap="1"
-Tylko w apr-0.9.4: configure.in~
