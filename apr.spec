@@ -1,15 +1,13 @@
-%define	snap	20030913101709
 Summary:	Apache Portable Runtime
 Summary(pl):	Apache Portable Runtime - przeno¶na biblioteka uruchomieniowa
 Name:		apr
 Version:	0.9.4
-Release:	0.%{snap}.2
+Release:	1
 Epoch:		1
 License:	GPL
 Group:		Libraries
-# http://www.apache.org/dist/apr/%{name}-%{version}.tar.gz
-Source0:	http://cvs.apache.org/snapshots/apr/%{name}_%{snap}.tar.gz
-# Source0-md5:	d14874964cd7f686594534d9e949eaee
+Source0:	http://www.apache.org/dist/apr/%{name}-%{version}.tar.gz
+# Source0-md5:	0f1e6765532dd581a58d69b35adeecfe
 Patch0:		%{name}-link.patch
 URL:		http://apr.apache.org/
 BuildRequires:	autoconf >= 2.13
@@ -66,7 +64,7 @@ Static apr library.
 Statyczna biblioteka apr.
 
 %prep
-%setup -q -n %{name}
+%setup -q
 %patch -p1 -b .orig
 
 %build
