@@ -89,6 +89,7 @@ rm -rf $RPM_BUILD_ROOT
 ln -sf %{_bindir}/libtool $RPM_BUILD_ROOT%{_datadir}/libtool
 
 install build/{*apr*.m4,*.awk,*.sh,config.*} $RPM_BUILD_ROOT%{_datadir}/build-1
+ln -sf build-1 $RPM_BUILD_ROOT%{_datadir}/build
 
 %{__perl} -pi -e 's@^(APR_SOURCE_DIR=).*@$1"%{_datadir}"@' $RPM_BUILD_ROOT%{_bindir}/apr-config
 %{__perl} -pi -e 's@^(apr_builddir|apr_builders)=.*@$1=%{_datadir}/build-1@' \
