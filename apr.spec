@@ -2,7 +2,7 @@ Summary:	Apache Portable Runtime
 Summary(pl):	Apache Portable Runtime - przeno¶na biblioteka uruchomieniowa
 Name:		apr
 Version:	0.9.5
-Release:	1
+Release:	2
 Epoch:		1
 License:	GPL
 Group:		Libraries
