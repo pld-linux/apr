@@ -13,7 +13,6 @@ URL:		http://apr.apache.org/
 BuildRequires:	autoconf >= 2.13
 BuildRequires:	libtool >= 1.3.3
 BuildRequires:	perl-base
-Conflicts:	apr < 1:0.9
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_includedir	/usr/include/apr
@@ -45,7 +44,6 @@ Summary:	Header files and development documentation for apr
 Summary(pl):	Pliki nag³ówkowe i dokumentacja programisty do apr
 Group:		Development/Libraries
 Requires:	%{name} = %{epoch}:%{version}-%{release}
-Conflicts:	apr-devel < 1:0.9
 
 %description devel
 Header files and development documentation for apr.
@@ -58,7 +56,6 @@ Summary:	Static apr library
 Summary(pl):	Statyczna biblioteka apr
 Group:		Development/Libraries
 Requires:	%{name}-devel = %{epoch}:%{version}-%{release}
-Conflicts:	apr-static < 1:0.9
 
 %description static
 Static apr library.
