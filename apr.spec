@@ -30,16 +30,7 @@ Requires:	%{name} = %{epoch}:%{version}
 Requires:	libtool
 
 %description devel
-Libpcap provides a portable framework for low-level network
-monitoring. Libpcap can provide network statistics collection,
-security monitoring and network debugging. Since almost every system
-vendor provides a different interface for packet capture, the apr
-authors created this system-independent API to ease in porting and to
-alleviate the need for several system-dependent packet capture modules
-in each application.
-
-Install apr if you need to do low-level network traffic monitoring on
-your network.
+Header files and develpment documentation for apr.
 
 %package static
 Summary:	Static apr library
