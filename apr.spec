@@ -30,7 +30,7 @@ take advantage of platform-specific deficiencies or features.
 
 %description -l pl
 Celem projektu APR (Apache Portable Runtime) jest stworzenie i
-utrzymywanie bibliotek dostarcaj±cych przewidywalnego i spójnego
+utrzymywanie bibliotek dostarczaj±cych przewidywalnego i spójnego
 interfejsu do le¿±cych u podstaw implementacji zale¿nych od platformy.
 G³ównym celem jest dostarczenie API, którego mog± u¿ywaæ programi¶ci
 maj±c pewno¶æ, ¿e zachowuje siê w sposób przewidywalny, je¶li nie
