@@ -118,6 +118,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/build-1/*.mk
 %{_datadir}/build-1/*.m4
 %{_datadir}/build-1/*.awk
+%{_datadir}/build
 %attr(755,root,root) %{_datadir}/build-1/config.*
 %attr(755,root,root) %{_datadir}/build-1/*.sh
 %attr(755,root,root) %{_datadir}/build-1/libtool
