@@ -1,0 +1,59 @@
+--- apr/build/apr_threads.m4.orig	2003-10-05 21:35:45.000000000 +0200
++++ apr/build/apr_threads.m4	2003-10-05 21:50:16.883264632 +0200
+@@ -130,6 +130,8 @@
+ fi
+ ])
+ 
++dnl -pthread in CFLAGS is not sufficient if linking in separate process
++pthreads_working=
+ AC_CACHE_CHECK(for pthreads_lib, ac_cv_pthreads_lib,[
+ ac_cv_pthreads_lib=""
+ if test "$pthreads_working" != "yes"; then
+--- apr/configure.in.orig	2003-09-02 12:19:46.000000000 +0200
++++ apr/configure.in	2003-10-05 22:35:55.808884648 +0200
+@@ -189,7 +189,7 @@
+ # On AIX, libraries need to be specified on the link of lib_target
+ lib_target_libs=""
+ case $host in
+-    *aix*)
++    *aix*|*linux*)
+         lib_target_libs="\$(EXTRA_LIBS)";
+         ;;
+     *-solaris2*)
+@@ -463,11 +463,9 @@
+ dnl It should check for LIBS being empty and set LIBS equal to the new value 
+ dnl without the extra " " in that case, but they didn't do that.  So, we
+ dnl end up LIBS="-lm -lcrypt -lnsl  -ldl" which is an annoyance.
+-AC_CHECK_LIB(resolv, res_init)
+-AC_CHECK_LIB(nsl, gethostbyname)
++dnl AC_CHECK_LIB(resolv, res_init)  -- not used by apr
+ AC_SEARCH_LIBS(gethostname, nsl)
+-AC_CHECK_LIB(socket, socket)
+-AC_SEARCH_LIBS(crypt, crypt ufc)
++AC_SEARCH_LIBS(socket, socket)
+ AC_CHECK_LIB(truerand, main)
+ AC_SEARCH_LIBS(modf, m)
+ AC_SEARCH_LIBS(sqrt, m)
+@@ -604,7 +602,7 @@
+ 
+ # The real-time POSIX extensions (e.g. shm_*, sem_*) may only
+ # be available if linking against librt.
+-AC_SEARCH_LIBS(shm_open, rt)
++dnl AC_SEARCH_LIBS(shm_open, rt)  -- not used by apr
+ 
+ case $host in
+  *-sysv*)
+@@ -863,10 +861,13 @@
+ if test "$strerror_r" = "1"; then
+   APR_CHECK_STRERROR_R_RC
+ fi
++save_LIBS="$LIBS"
++AC_SEARCH_LIBS(crypt, crypt ufc)
+ AC_CHECK_FUNCS(crypt_r, [ crypt_r="1" ], [ crypt_r="0" ])
+ if test "$crypt_r" = "1"; then
+   APR_CHECK_CRYPT_R_STYLE
+ fi
++LIBS="$save_LIBS"
+ AC_CHECK_FUNCS(mmap, [ mmap="1" ], [ mmap="0" ])
+ if test "$native_mmap_emul" = "1"; then
+     mmap="1"
