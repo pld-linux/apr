@@ -1,0 +1,40 @@
+--- apr-httpd-2.0.49/network_io/unix/sockets.c.orig	2004-02-13 10:33:51.000000000 +0100
++++ apr-httpd-2.0.49/network_io/unix/sockets.c	2004-04-18 22:49:53.089901496 +0200
+@@ -372,7 +372,36 @@
+         set_socket_vars(*sock, APR_INET, SOCK_STREAM, 0);
+         (*sock)->timeout = -1;
+     }
+-    (*sock)->local_port_unknown = (*sock)->local_interface_unknown = 1;
++/*  (*sock)->local_port_unknown = (*sock)->local_interface_unknown = 1; */
++     if (1)
++     {
++       /* fixup socket's peer information.
++          we need it for the muxmpm.           enrico weigelt, metux ITS
++                                               <weigelt@metux.de>
++       */
++       /* XXX next line looks bogus w.r.t. AF_INET6 support */
++
++       /* adjust remote address */
++       (*sock)->remote_addr->salen = sizeof((*sock)->remote_addr->sa);
++         getpeername(
++           *thesock,
++           (struct sockaddr*)&((*sock)->remote_addr->sa),
++           &((*sock)->remote_addr->salen)
++       );
++         (*sock)->remote_addr->port = ntohs((*sock)->remote_addr->sa.sin.sin_port);
++
++         /* XXX assumes sin_port and sin6_port at same offset */
++
++       /* adjust local address */
++         getsockname(
++           *thesock,
++           (struct sockaddr*)&((*sock)->local_addr->sa),
++           &((*sock)->local_addr->salen)
++       );
++         (*sock)->local_addr->port = ntohs((*sock)->local_addr->sa.sin.sin_port);
++       (*sock)->local_port_unknown = (*sock)->local_interface_unknown = 0;
++     }
++
+     (*sock)->remote_addr_unknown = 1;
+     (*sock)->socketdes = *thesock;
+     return APR_SUCCESS;
