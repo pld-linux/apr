@@ -2,7 +2,7 @@
 Summary:	Apache Portable Runtime
 Name:		apr
 Version:	0.9.4
-Release:	0.%{snap}.1
+Release:	0.%{snap}.2
 Epoch:		1
 License:	GPL
 Group:		Libraries
@@ -12,7 +12,7 @@ Source0:	http://cvs.apache.org/snapshots/apr/%{name}_%{snap}.tar.gz
 URL:		http://apr.apache.org/
 BuildRequires:	libtool
 BuildRequires:	autoconf
-BuildRequires:	automake
+BuildRequires:	perl-base
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_includedir	/usr/include/apr
@@ -62,6 +62,10 @@ rm -rf $RPM_BUILD_ROOT
 
 ln -sf %{_bindir}/libtool $RPM_BUILD_ROOT%{_datadir}/libtool
 
+install build/*apr*.m4	$RPM_BUILD_ROOT%{_datadir}/build
+
+perl -pi -e "s#$RPM_BUILD_DIR/%{name}.*#%{_datadir}/%{name}#g" $RPM_BUILD_ROOT%{_datadir}/build/*
+
 %post   -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
@@ -83,6 +87,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_datadir}
 %dir %{_datadir}/build
 %{_datadir}/build/*.mk
+%{_datadir}/build/*.m4
 %attr(755,root,root) %{_datadir}/build/libtool
 
 %files static
