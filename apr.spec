@@ -2,7 +2,7 @@ Summary:	Apache Portable Runtime
 Summary(pl):	Apache Portable Runtime - przeno¶na biblioteka uruchomieniowa
 Name:		apr
 Version:	0.9.5
-Release:	7
+Release:	8
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
@@ -11,6 +11,7 @@ Source0:	http://www.apache.org/dist/apr/%{name}-0.9.4.tar.gz
 Patch0:		%{name}-0.9.4_0.9.5.patch.gz
 Patch1:		%{name}-link.patch
 Patch2:		%{name}-metuxmpm.patch
+Patch3:		%{name}-modes.patch
 URL:		http://apr.apache.org/
 BuildRequires:	autoconf >= 2.13
 BuildRequires:	automake
@@ -71,6 +72,7 @@ Statyczna biblioteka apr.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 %build
 install /usr/share/automake/config.* build
