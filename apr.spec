@@ -2,7 +2,7 @@ Summary:	Apache Portable Runtime
 Summary(pl):	Apache Portable Runtime - przeno¶na biblioteka uruchomieniowa
 Name:		apr
 Version:	1.0.1
-Release:	2
+Release:	3
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
@@ -78,6 +78,7 @@ Statyczna biblioteka apr.
 install /usr/share/automake/config.* build
 ./buildconf
 %configure \
+	--with-devrandom=/dev/urandom \
 %ifarch %{ix86}
 %ifnarch i386
 	--enable-nonportable-atomics \
