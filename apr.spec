@@ -83,8 +83,8 @@ ln -sf %{_bindir}/libtool $RPM_BUILD_ROOT%{_datadir}/libtool
 
 install build/{*apr*.m4,*.awk,*.sh,config.*} $RPM_BUILD_ROOT%{_datadir}/build
 
-%{__perl} -pi -e "s#$RPM_BUILD_DIR/%{name}#%{_datadir}#g" $RPM_BUILD_ROOT%{_bindir}/*
-%{__perl} -pi -e "s#$RPM_BUILD_DIR/%{name}.*#%{_datadir}/build#g" $RPM_BUILD_ROOT%{_datadir}/build/*
+%{__perl} -pi -e "s#$RPM_BUILD_DIR/%{name}-%{version}#%{_datadir}#g" $RPM_BUILD_ROOT%{_bindir}/*
+%{__perl} -pi -e "s#$RPM_BUILD_DIR/%{name}-%{version}.*#%{_datadir}/build#g" $RPM_BUILD_ROOT%{_datadir}/build/*
 
 %clean
 rm -rf $RPM_BUILD_ROOT
