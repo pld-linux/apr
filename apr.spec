@@ -2,7 +2,7 @@ Summary:	Apache Portable Runtime
 Summary(pl):	Apache Portable Runtime - przeno¶na biblioteka uruchomieniowa
 Name:		apr
 Version:	0.9.5
-Release:	0.1
+Release:	0.2
 Epoch:		1
 License:	GPL
 Group:		Libraries
@@ -85,8 +85,9 @@ ln -sf %{_bindir}/libtool $RPM_BUILD_ROOT%{_datadir}/libtool
 
 install build/{*apr*.m4,*.awk,*.sh,config.*} $RPM_BUILD_ROOT%{_datadir}/build
 
-%{__perl} -pi -e "s#$RPM_BUILD_DIR/%{name}-%{version}#%{_datadir}#g" $RPM_BUILD_ROOT%{_bindir}/*
-%{__perl} -pi -e "s#$RPM_BUILD_DIR/%{name}-%{version}.*#%{_datadir}/build#g" $RPM_BUILD_ROOT%{_datadir}/build/*
+%{__perl} -pi -e 's@^(APR_SOURCE_DIR=).*@$1"%{_datadir}"@' $RPM_BUILD_ROOT%{_bindir}/apr-config
+%{__perl} -pi -e 's@^(apr_builddir=).*@$1%{_datadir}@' $RPM_BUILD_ROOT%{_datadir}/build/apr_rules.mk
+%{__perl} -pi -e 's@^(apr_builders=).*@$1%{_datadir}/build@' $RPM_BUILD_ROOT%{_datadir}/build/apr_rules.mk
 
 %clean
 rm -rf $RPM_BUILD_ROOT
