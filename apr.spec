@@ -62,9 +62,10 @@ rm -rf $RPM_BUILD_ROOT
 
 ln -sf %{_bindir}/libtool $RPM_BUILD_ROOT%{_datadir}/libtool
 
-install build/*apr*.m4	$RPM_BUILD_ROOT%{_datadir}/build
+install build/{*apr*.m4,*.awk,*.sh,config.*}	$RPM_BUILD_ROOT%{_datadir}/build
 
-perl -pi -e "s#$RPM_BUILD_DIR/%{name}.*#%{_datadir}/%{name}#g" $RPM_BUILD_ROOT%{_datadir}/build/*
+perl -pi -e "s#$RPM_BUILD_DIR/%{name}#%{_datadir}#g" $RPM_BUILD_ROOT%{_bindir}/*
+perl -pi -e "s#$RPM_BUILD_DIR/%{name}.*#%{_datadir}/build#g" $RPM_BUILD_ROOT%{_datadir}/build/*
 
 %post   -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
@@ -88,6 +89,9 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_datadir}/build
 %{_datadir}/build/*.mk
 %{_datadir}/build/*.m4
+%{_datadir}/build/*.awk
+%attr(755,root,root) %{_datadir}/build/config.*
+%attr(755,root,root) %{_datadir}/build/*.sh
 %attr(755,root,root) %{_datadir}/build/libtool
 
 %files static
