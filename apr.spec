@@ -1,13 +1,18 @@
+%define	snap	20030913101709
 Summary:	Apache Portable Runtime
 Name:		apr
-Version:	0.9.3
-Release:	1
+Version:	0.9.4
+Release:	0.%{snap}.1
 Epoch:		1
 License:	GPL
 Group:		Libraries
-Source0:	http://www.apache.org/dist/apr/%{name}-%{version}.tar.gz
-# Source0-md5:	03b243de20ffcf4f30565bc4771489a6
+# http://www.apache.org/dist/apr/%{name}-%{version}.tar.gz
+Source0:	http://cvs.apache.org/snapshots/apr/%{name}_%{snap}.tar.gz
+# Source0-md5:	d14874964cd7f686594534d9e949eaee
 URL:		http://apr.apache.org/
+BuildRequires:	libtool
+BuildRequires:	autoconf
+BuildRequires:	automake
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_includedir	/usr/include/apr
@@ -41,9 +46,10 @@ Requires:	%{name}-devel = %{epoch}:%{version}
 Static apr library.
 
 %prep
-%setup  -q
+%setup  -q -n %{name}
 
 %build
+./buildconf
 %configure \
 	--enable-threads
 %{__make}
