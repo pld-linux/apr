@@ -49,6 +49,7 @@ Summary:	Header files and development documentation for apr
 Summary(pl):	Pliki nag³ówkowe i dokumentacja programisty do apr
 Group:		Development/Libraries
 Requires:	%{name} = %{epoch}:%{version}-%{release}
+Requires:	libuuid-devel
 
 %description devel
 Header files and development documentation for apr.
