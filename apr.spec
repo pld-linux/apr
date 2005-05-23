@@ -2,7 +2,7 @@ Summary:	Apache Portable Runtime
 Summary(pl):	Apache Portable Runtime - przeno¶na biblioteka uruchomieniowa
 Name:		apr
 Version:	1.1.1
-Release:	2
+Release:	3
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
@@ -16,6 +16,7 @@ URL:		http://apr.apache.org/
 BuildRequires:	autoconf >= 2.13
 BuildRequires:	automake
 BuildRequires:	libtool >= 1.3.3
+BuildRequires:	libuuid-devel
 BuildRequires:	perl-base
 BuildRequires:	python
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
