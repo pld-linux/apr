@@ -2,7 +2,7 @@ Summary:	Apache Portable Runtime
 Summary(pl):	Apache Portable Runtime - przeno¶na biblioteka uruchomieniowa
 Name:		apr
 Version:	1.1.1
-Release:	3.1
+Release:	4
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
@@ -79,7 +79,7 @@ Statyczna biblioteka apr.
 %build
 install /usr/share/automake/config.* build
 ./buildconf
-# 2.4 kernels on sparc do not support sendfile64
+# 2.4/2.6 kernels on sparc32 do not support sendfile64
 %configure \
 %ifarch sparc
 	ac_cv_func_sendfile64=no \
