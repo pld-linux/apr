@@ -1,13 +1,13 @@
 Summary:	Apache Portable Runtime
 Summary(pl):	Apache Portable Runtime - przeno¶na biblioteka uruchomieniowa
 Name:		apr
-Version:	1.2.1
+Version:	1.2.2
 Release:	1
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
 Source0:	http://www.apache.org/dist/apr/%{name}-%{version}.tar.bz2
-# Source0-md5:	db77e071bb693958aed82e8c5cbae445
+# Source0-md5:	c43d923b02cf1983106d694976be89c1
 Patch0:		%{name}-link.patch
 Patch1:		%{name}-metuxmpm.patch
 # EPOLL PATCH: TO BE DROPPED AFTER AC
@@ -79,9 +79,11 @@ Statyczna biblioteka apr.
 %build
 install /usr/share/automake/config.* build
 ./buildconf
+# disable TCP_NODELAY|TCP_CORK for 2.4.x compatibility (to be dropped after Ac)
 # 2.4/2.6 kernels on sparc32 do not support sendfile64
 %configure \
-%ifarch sparc
+	apr_cv_tcp_nodelay_with_cork=no \
+%ifarch sparc sparcv9
 	ac_cv_func_sendfile64=no \
 %endif
 	--with-devrandom=/dev/urandom \
