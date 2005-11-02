@@ -51,6 +51,8 @@ Summary(pl):	Pliki nag³ówkowe i dokumentacja programisty do apr
 Group:		Development/Libraries
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 Requires:	libuuid-devel
+Requires:	automake
+Requires:	libtool
 
 %description devel
 Header files and development documentation for apr.
@@ -104,7 +106,10 @@ rm -rf $RPM_BUILD_ROOT
 ln -sf %{_bindir}/libtool $RPM_BUILD_ROOT%{_datadir}/libtool
 
 mv -f $RPM_BUILD_ROOT%{_datadir}/build-1 $RPM_BUILD_ROOT%{_datadir}/build
-install build/{*apr*.m4,*.awk,*.sh,config.*} $RPM_BUILD_ROOT%{_datadir}/build
+install build/{*apr*.m4,*.awk,*.sh} $RPM_BUILD_ROOT%{_datadir}/build
+ln -snf /usr/share/automake/config.{guess,sub} $RPM_BUILD_ROOT%{_datadir}/build
+ln -snf /usr/share/libtool/ltmain.sh $RPM_BUILD_ROOT%{_datadir}/build
+ln -snf /usr/bin/libtool $RPM_BUILD_ROOT%{_datadir}/build
 ln -sf build $RPM_BUILD_ROOT%{_datadir}/build-1
 
 %{__perl} -pi -e 's@^(APR_SOURCE_DIR=).*@$1"%{_datadir}"@' $RPM_BUILD_ROOT%{_bindir}/apr-config
