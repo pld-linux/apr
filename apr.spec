@@ -1,3 +1,5 @@
+%bcond_with	epoll
+%bcond_with	tcpnodelaycork
 Summary:	Apache Portable Runtime
 Summary(pl):	Apache Portable Runtime - przeno¶na biblioteka uruchomieniowa
 Name:		apr
@@ -76,7 +78,7 @@ Statyczna biblioteka apr.
 %setup -q
 %patch0 -p1
 %patch1 -p1
-%patch2 -p1
+%{!?with_epoll:%patch2 -p1}
 
 %build
 install /usr/share/automake/config.* build
@@ -84,12 +86,12 @@ install /usr/share/automake/config.* build
 # disable TCP_NODELAY|TCP_CORK for 2.4.x compatibility (to be dropped after Ac)
 # 2.4/2.6 kernels on sparc32 do not support sendfile64
 %configure \
-	apr_cv_tcp_nodelay_with_cork=no \
+	%{!?with_tcpnodelaycork:apr_cv_tcp_nodelay_with_cork=no} \
 %ifarch sparc sparcv9
 	ac_cv_func_sendfile64=no \
 %endif
 	--with-devrandom=/dev/urandom \
-%ifarch %{ix86}
+%ifarch %{ix86} %{i8664}
 %ifnarch i386
 	--enable-nonportable-atomics \
 %endif
