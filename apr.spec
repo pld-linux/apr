@@ -1,5 +1,8 @@
-%bcond_with	epoll
-%bcond_with	tcpnodelaycork
+#
+# Conditional build (Linux 2.4 compat, switch after Ac):
+%bcond_with	epoll		# use epoll() syscall (requires Linux 2.6)
+%bcond_with	tcpnodelaycork	# use TCP_NODELAY|TCP_CORK flags (requires Linux 2.6)
+#
 Summary:	Apache Portable Runtime
 Summary(pl):	Apache Portable Runtime - przeno¶na biblioteka uruchomieniowa
 Name:		apr
@@ -12,7 +15,6 @@ Source0:	http://www.apache.org/dist/apr/%{name}-%{version}.tar.bz2
 # Source0-md5:	c43d923b02cf1983106d694976be89c1
 Patch0:		%{name}-link.patch
 Patch1:		%{name}-metuxmpm.patch
-# EPOLL PATCH: TO BE DROPPED AFTER AC
 Patch2:		%{name}-no-epoll.patch
 URL:		http://apr.apache.org/
 BuildRequires:	autoconf >= 2.13
@@ -83,7 +85,6 @@ Statyczna biblioteka apr.
 %build
 install /usr/share/automake/config.* build
 ./buildconf
-# disable TCP_NODELAY|TCP_CORK for 2.4.x compatibility (to be dropped after Ac)
 # 2.4/2.6 kernels on sparc32 do not support sendfile64
 %configure \
 	%{!?with_tcpnodelaycork:apr_cv_tcp_nodelay_with_cork=no} \
