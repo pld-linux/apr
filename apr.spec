@@ -1,13 +1,18 @@
 #
 # Conditional build (Linux 2.4 compat, switch after Ac):
 %bcond_with	epoll		# use epoll() syscall (requires Linux 2.6)
+%bcond_with	sendfile64	# use sendfile64 on even if it requires Linux 2.6
 %bcond_with	tcpnodelaycork	# use TCP_NODELAY|TCP_CORK flags (requires Linux 2.6)
 #
+# Linux 2.4.32 supports sendfile64 only on i386 and mips (only 32-bit archs matter)
+%ifnarch ppc sparc sparc64
+%define		with_sendfile64		1
+%endif
 Summary:	Apache Portable Runtime
 Summary(pl):	Apache Portable Runtime - przeno¶na biblioteka uruchomieniowa
 Name:		apr
 Version:	1.2.2
-Release:	1
+Release:	2
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
@@ -85,12 +90,9 @@ Statyczna biblioteka apr.
 %build
 install /usr/share/automake/config.* build
 ./buildconf
-# 2.4/2.6 kernels on sparc32 do not support sendfile64
 %configure \
 	%{!?with_tcpnodelaycork:apr_cv_tcp_nodelay_with_cork=no} \
-%ifarch sparc sparcv9
-	ac_cv_func_sendfile64=no \
-%endif
+	%{!?with_sendfile64:ac_cv_func_sendfile64=no} \
 	--with-devrandom=/dev/urandom \
 %ifarch %{ix86} %{i8664}
 %ifnarch i386
