@@ -12,7 +12,7 @@ Summary:	Apache Portable Runtime
 Summary(pl):	Apache Portable Runtime - przeno¶na biblioteka uruchomieniowa
 Name:		apr
 Version:	1.2.2
-Release:	2
+Release:	2.6
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
@@ -21,12 +21,13 @@ Source0:	http://www.apache.org/dist/apr/%{name}-%{version}.tar.bz2
 Patch0:		%{name}-link.patch
 Patch1:		%{name}-metuxmpm.patch
 Patch2:		%{name}-no-epoll.patch
+Patch3:		%{name}-libtool.patch
 URL:		http://apr.apache.org/
 BuildRequires:	autoconf >= 2.13
 BuildRequires:	automake
 BuildRequires:	libtool >= 1.3.3
 BuildRequires:	libuuid-devel
-BuildRequires:	perl-base
+BuildRequires:	sed >= 4.0
 BuildRequires:	python
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -86,6 +87,7 @@ Statyczna biblioteka apr.
 %patch0 -p1
 %patch1 -p1
 %{!?with_epoll:%patch2 -p1}
+%patch3 -p1
 
 %build
 install /usr/share/automake/config.* build
@@ -111,15 +113,17 @@ rm -rf $RPM_BUILD_ROOT
 ln -sf %{_bindir}/libtool $RPM_BUILD_ROOT%{_datadir}/libtool
 
 mv -f $RPM_BUILD_ROOT%{_datadir}/build-1 $RPM_BUILD_ROOT%{_datadir}/build
-install build/{*apr*.m4,*.awk,*.sh} $RPM_BUILD_ROOT%{_datadir}/build
+install build/{*apr*.m4,*.awk,*.sh,gen-build.py} $RPM_BUILD_ROOT%{_datadir}/build
 ln -snf /usr/share/automake/config.{guess,sub} $RPM_BUILD_ROOT%{_datadir}/build
 ln -snf /usr/share/libtool/ltmain.sh $RPM_BUILD_ROOT%{_datadir}/build
 ln -snf /usr/bin/libtool $RPM_BUILD_ROOT%{_datadir}/build
 ln -sf build $RPM_BUILD_ROOT%{_datadir}/build-1
 
-%{__perl} -pi -e 's@^(APR_SOURCE_DIR=).*@$1"%{_datadir}"@' $RPM_BUILD_ROOT%{_bindir}/apr-config
-%{__perl} -pi -e 's@^(apr_builddir|apr_builders)=.*@$1=%{_datadir}/build-1@' \
+sed -i -e 's@^\(APR_SOURCE_DIR=\).*@\1"%{_datadir}"@' \
+	$RPM_BUILD_ROOT%{_bindir}/apr-1-config
+sed -i -e 's@^\(apr_builddir\|apr_builders\)=.*@\1=%{_datadir}/build-1@' \
 	$RPM_BUILD_ROOT%{_datadir}/build/apr_rules.mk
+sed -i -e '1s@#!.*python@#!%{__python}@' $RPM_BUILD_ROOT%{_datadir}/build/gen-build.py
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -147,6 +151,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_datadir}/build/config.*
 %attr(755,root,root) %{_datadir}/build/*.sh
 %attr(755,root,root) %{_datadir}/build/libtool
+%attr(755,root,root) %{_datadir}/build/gen-build.py
 %{_datadir}/build-1
 %{_pkgconfigdir}/apr-1.pc
 
