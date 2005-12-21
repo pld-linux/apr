@@ -12,7 +12,7 @@ Summary:	Apache Portable Runtime
 Summary(pl):	Apache Portable Runtime - przeno¶na biblioteka uruchomieniowa
 Name:		apr
 Version:	1.2.2
-Release:	3
+Release:	4
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
@@ -22,6 +22,7 @@ Patch0:		%{name}-link.patch
 Patch1:		%{name}-metuxmpm.patch
 Patch2:		%{name}-no-epoll.patch
 Patch3:		%{name}-libtool.patch
+Patch4:		%{name}-branch.patch
 URL:		http://apr.apache.org/
 BuildRequires:	autoconf >= 2.13
 BuildRequires:	automake
@@ -88,6 +89,7 @@ Statyczna biblioteka apr.
 %patch1 -p1
 %{!?with_epoll:%patch2 -p1}
 %patch3 -p1
+%patch4 -p0
 
 %build
 install /usr/share/automake/config.* build
