@@ -1,23 +1,19 @@
 #
-# Conditional build (Linux 2.4 compat, switch after Ac):
-%bcond_with	epoll		# use epoll() syscall (requires Linux 2.6)
-%bcond_with	sendfile64	# use sendfile64 on even if it requires Linux 2.6
-%bcond_with	tcpnodelaycork	# use TCP_NODELAY|TCP_CORK flags (requires Linux 2.6)
+# Conditional build:
+%bcond_without	epoll		# don't use epoll() syscall (requires Linux 2.6)
+%bcond_without	sendfile64	# don't use sendfile64 (requires Linux 2.6 on ppc/sparc*)
+%bcond_without	tcpnodelaycork	# don't use TCP_NODELAY|TCP_CORK flags (requires Linux 2.6)
 #
-# Linux 2.4.32 supports sendfile64 only on i386 and mips (only 32-bit archs matter)
-%ifnarch ppc sparc sparc64
-%define		with_sendfile64		1
-%endif
 Summary:	Apache Portable Runtime
 Summary(pl):	Apache Portable Runtime - przeno¶na biblioteka uruchomieniowa
 Name:		apr
-Version:	1.2.6
+Version:	1.2.7
 Release:	1
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
 Source0:	http://www.apache.org/dist/apr/%{name}-%{version}.tar.bz2
-# Source0-md5:	b1948b5ff68cedae6d0406ae842274c1
+# Source0-md5:	e77887dbafc515c63feac84686bcb3bc
 Patch0:		%{name}-link.patch
 Patch1:		%{name}-metuxmpm.patch
 Patch2:		%{name}-no-epoll.patch
@@ -29,6 +25,10 @@ BuildRequires:	libtool >= 1.3.3
 BuildRequires:	libuuid-devel
 BuildRequires:	sed >= 4.0
 BuildRequires:	python
+%if %{with epoll} || %{with sendfile64} || %{with tcpnodelaycork}
+Conflicts:	kernel24
+Conflicts:	kernel24-smp
+%endif
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_includedir	/usr/include/apr
