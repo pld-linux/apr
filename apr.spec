@@ -1,6 +1,3 @@
-#
-# Conditional build:
-#
 Summary:	Apache Portable Runtime
 Summary(pl):	Apache Portable Runtime - przeno¶na biblioteka uruchomieniowa
 Name:		apr
@@ -21,6 +18,8 @@ BuildRequires:	libtool >= 1.3.3
 BuildRequires:	libuuid-devel
 BuildRequires:	sed >= 4.0
 BuildRequires:	python
+BuildRequires:	uname(release) >= 2.6
+Requires:	uname(release) >= 2.6
 Conflicts:	kernel24
 Conflicts:	kernel24-smp
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
