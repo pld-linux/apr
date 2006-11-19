@@ -81,17 +81,29 @@ Statyczna biblioteka apr.
 %patch1 -p1
 %patch2 -p1
 
+cat >> config.layout <<'EOF'
+<Layout PLD>
+sbindir:	%{_sbindir}
+libexecdir:	%{_libdir}/apr
+installbuilddir: ${datadir}/build-${APR_MAJOR_VERSION}
+localstatedir:	/var/run
+runtimedir:	/var/run
+libsuffix:	-${APR_MAJOR_VERSION}
+</Layout PLD>
+EOF
+
 %build
 install /usr/share/automake/config.* build
 ./buildconf
 %configure \
-	--with-devrandom=/dev/urandom \
+	--enable-layout=PLD \
 %ifarch %{ix86} %{i8664}
 %ifnarch i386
 	--enable-nonportable-atomics \
 %endif
 %endif
-	--enable-threads
+	--enable-threads \
+	--with-devrandom=/dev/urandom
 %{__make}
 
 %install
