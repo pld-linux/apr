@@ -11,17 +11,17 @@
 Summary:	Apache Portable Runtime
 Summary(pl):	Apache Portable Runtime - przeno¶na biblioteka uruchomieniowa
 Name:		apr
-Version:	1.2.7
+Version:	1.2.8
 Release:	1
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
 Source0:	http://www.apache.org/dist/apr/%{name}-%{version}.tar.bz2
-# Source0-md5:	e77887dbafc515c63feac84686bcb3bc
+# Source0-md5:	c573f1b3046991a2624002398b078ad5
 Patch0:		%{name}-link.patch
 Patch1:		%{name}-metuxmpm.patch
-Patch2:		%{name}-no-epoll.patch
-Patch3:		%{name}-libtool.patch
+Patch2:		%{name}-libtool.patch
+Patch3:		%{name}-no-epoll.patch
 URL:		http://apr.apache.org/
 BuildRequires:	autoconf >= 2.13
 BuildRequires:	automake
@@ -86,8 +86,19 @@ Statyczna biblioteka apr.
 %setup -q
 %patch0 -p1
 %patch1 -p1
-%{!?with_epoll:%patch2 -p1}
-%patch3 -p1
+%patch2 -p1
+%{!?with_epoll:%patch3 -p1}
+
+cat >> config.layout <<'EOF'
+<Layout PLD>
+sbindir:	%{_sbindir}
+libexecdir:	%{_libdir}/apr
+installbuilddir: ${datadir}/build-${APR_MAJOR_VERSION}
+localstatedir:	/var/run
+runtimedir:	/var/run
+libsuffix:	-${APR_MAJOR_VERSION}
+</Layout PLD>
+EOF
 
 %build
 install /usr/share/automake/config.* build
@@ -95,13 +106,14 @@ install /usr/share/automake/config.* build
 %configure \
 	%{!?with_tcpnodelaycork:apr_cv_tcp_nodelay_with_cork=no} \
 	%{!?with_sendfile64:ac_cv_func_sendfile64=no} \
-	--with-devrandom=/dev/urandom \
+	--enable-layout=PLD \
 %ifarch %{ix86} %{i8664}
 %ifnarch i386
 	--enable-nonportable-atomics \
 %endif
 %endif
-	--enable-threads
+	--enable-threads \
+	--with-devrandom=/dev/urandom
 %{__make}
 
 %install
