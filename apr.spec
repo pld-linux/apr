@@ -1,5 +1,5 @@
 Summary:	Apache Portable Runtime
-Summary(pl):	Apache Portable Runtime - przeno¶na biblioteka uruchomieniowa
+Summary(pl.UTF-8):   Apache Portable Runtime - przenoÅ›na biblioteka uruchomieniowa
 Name:		apr
 Version:	1.2.8
 Release:	1
@@ -37,20 +37,20 @@ regardless of the platform on which their software is built, relieving
 them of the need to code special-case conditions to work around or
 take advantage of platform-specific deficiencies or features.
 
-%description -l pl
+%description -l pl.UTF-8
 Celem projektu APR (Apache Portable Runtime) jest stworzenie i
-utrzymywanie bibliotek dostarczaj±cych przewidywalnego i spójnego
-interfejsu do le¿±cych u podstaw implementacji zale¿nych od platformy.
-G³ównym celem jest dostarczenie API, którego mog± u¿ywaæ programi¶ci
-maj±c pewno¶æ, ¿e zachowuje siê w sposób przewidywalny, je¶li nie
-identyczny, niezale¿nie od platformy na jakiej oprogramowanie jest
-budowane oraz bez potrzeby kodowania specjalnych warunków do
-obchodzenia lub wykorzystywania specyficznych dla platform ró¿nic lub
-mo¿liwo¶ci.
+utrzymywanie bibliotek dostarczajÄ…cych przewidywalnego i spÃ³jnego
+interfejsu do leÅ¼Ä…cych u podstaw implementacji zaleÅ¼nych od platformy.
+GÅ‚Ã³wnym celem jest dostarczenie API, ktÃ³rego mogÄ… uÅ¼ywaÄ‡ programiÅ›ci
+majÄ…c pewnoÅ›Ä‡, Å¼e zachowuje siÄ™ w sposÃ³b przewidywalny, jeÅ›li nie
+identyczny, niezaleÅ¼nie od platformy na jakiej oprogramowanie jest
+budowane oraz bez potrzeby kodowania specjalnych warunkÃ³w do
+obchodzenia lub wykorzystywania specyficznych dla platform rÃ³Å¼nic lub
+moÅ¼liwoÅ›ci.
 
 %package devel
 Summary:	Header files and development documentation for apr
-Summary(pl):	Pliki nag³ówkowe i dokumentacja programisty do apr
+Summary(pl.UTF-8):   Pliki nagÅ‚Ã³wkowe i dokumentacja programisty do apr
 Group:		Development/Libraries
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 Requires:	libuuid-devel
@@ -60,19 +60,19 @@ Requires:	libtool
 %description devel
 Header files and development documentation for apr.
 
-%description devel -l pl
-Pliki nag³ówkowe i dokumentacja programisty do apr.
+%description devel -l pl.UTF-8
+Pliki nagÅ‚Ã³wkowe i dokumentacja programisty do apr.
 
 %package static
 Summary:	Static apr library
-Summary(pl):	Statyczna biblioteka apr
+Summary(pl.UTF-8):   Statyczna biblioteka apr
 Group:		Development/Libraries
 Requires:	%{name}-devel = %{epoch}:%{version}-%{release}
 
 %description static
 Static apr library.
 
-%description static -l pl
+%description static -l pl.UTF-8
 Statyczna biblioteka apr.
 
 %prep
