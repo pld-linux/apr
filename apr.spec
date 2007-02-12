@@ -1,5 +1,5 @@
 Summary:	Apache Portable Runtime
-Summary(pl.UTF-8):   Apache Portable Runtime - przenośna biblioteka uruchomieniowa
+Summary(pl.UTF-8):	Apache Portable Runtime - przenośna biblioteka uruchomieniowa
 Name:		apr
 Version:	1.2.8
 Release:	1
@@ -50,7 +50,7 @@ możliwości.
 
 %package devel
 Summary:	Header files and development documentation for apr
-Summary(pl.UTF-8):   Pliki nagłówkowe i dokumentacja programisty do apr
+Summary(pl.UTF-8):	Pliki nagłówkowe i dokumentacja programisty do apr
 Group:		Development/Libraries
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 Requires:	libuuid-devel
@@ -65,7 +65,7 @@ Pliki nagłówkowe i dokumentacja programisty do apr.
 
 %package static
 Summary:	Static apr library
-Summary(pl.UTF-8):   Statyczna biblioteka apr
+Summary(pl.UTF-8):	Statyczna biblioteka apr
 Group:		Development/Libraries
 Requires:	%{name}-devel = %{epoch}:%{version}-%{release}
 
