@@ -136,13 +136,14 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc CHANGES docs/*.html
-%attr(755,root,root) %{_libdir}/lib*.so.*.*
+%attr(755,root,root) %{_libdir}/libapr-1.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libapr-1.so.0
 
 %files devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_bindir}/*
-%attr(755,root,root) %{_libdir}/lib*.so
-%{_libdir}/lib*.la
+%attr(755,root,root) %{_bindir}/apr-1-config
+%attr(755,root,root) %{_libdir}/libapr-1.so
+%{_libdir}/libapr-1.la
 %{_libdir}/apr.exp
 %{_includedir}
 %dir %{_datadir}
@@ -159,4 +160,4 @@ rm -rf $RPM_BUILD_ROOT
 
 %files static
 %defattr(644,root,root,755)
-%{_libdir}/lib*.a
+%{_libdir}/libapr-1.a
