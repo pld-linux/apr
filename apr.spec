@@ -2,7 +2,7 @@ Summary:	Apache Portable Runtime
 Summary(pl.UTF-8):	Apache Portable Runtime - przenośna biblioteka uruchomieniowa
 Name:		apr
 Version:	1.2.12
-Release:	1
+Release:	2
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
@@ -89,12 +89,12 @@ installbuilddir: ${datadir}/build-${APR_MAJOR_VERSION}
 localstatedir:	/var/run
 runtimedir:	/var/run
 libsuffix:	-${APR_MAJOR_VERSION}
-</Layout PLD>
+</Layout>
 EOF
 
 %build
 install /usr/share/automake/config.* build
-./buildconf
+
 %configure \
 	--enable-layout=PLD \
 %ifarch %{ix86} %{i8664}
