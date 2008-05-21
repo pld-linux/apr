@@ -14,7 +14,7 @@ Patch2:		%{name}-libtool.patch
 URL:		http://apr.apache.org/
 BuildRequires:	autoconf >= 2.13
 BuildRequires:	automake
-BuildRequires:	libtool >= 1.3.3
+BuildRequires:	libtool >= 2.2
 BuildRequires:	libuuid-devel
 BuildRequires:	sed >= 4.0
 BuildRequires:	python
