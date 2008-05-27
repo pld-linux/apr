@@ -14,7 +14,7 @@ Patch2:		%{name}-libtool.patch
 URL:		http://apr.apache.org/
 BuildRequires:	autoconf >= 2.13
 BuildRequires:	automake
-BuildRequires:	libtool >= 2.2
+BuildRequires:	libtool >= 2:2.2
 BuildRequires:	libuuid-devel
 BuildRequires:	sed >= 4.0
 BuildRequires:	python
@@ -55,7 +55,7 @@ Group:		Development/Libraries
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 Requires:	libuuid-devel
 Requires:	automake
-Requires:	libtool
+Requires:	libtool >= 2:2.2
 
 %description devel
 Header files and development documentation for apr.
