@@ -2,7 +2,7 @@ Summary:	Apache Portable Runtime
 Summary(pl.UTF-8):	Apache Portable Runtime - przenośna biblioteka uruchomieniowa
 Name:		apr
 Version:	1.3.2
-Release:	1
+Release:	2
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
@@ -18,6 +18,7 @@ BuildRequires:	libtool >= 2:2.2
 BuildRequires:	libuuid-devel
 BuildRequires:	sed >= 4.0
 BuildRequires:	python
+BuildRequires:	rpm-pythonprov
 BuildRequires:	uname(release) >= 2.6
 Requires:	uname(release) >= 2.6
 Conflicts:	kernel24
@@ -56,6 +57,7 @@ Requires:	%{name} = %{epoch}:%{version}-%{release}
 Requires:	libuuid-devel
 Requires:	automake
 Requires:	libtool >= 2:2.2
+Requires:	python-modules
 
 %description devel
 Header files and development documentation for apr.
