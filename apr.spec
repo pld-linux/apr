@@ -14,13 +14,20 @@ Patch2:		%{name}-libtool.patch
 URL:		http://apr.apache.org/
 BuildRequires:	autoconf >= 2.13
 BuildRequires:	automake
+%if "%{pld_release}" != "ac"
 BuildRequires:	libtool >= 2:2.2
+%else
+BuildRequires:	libtool
+%endif
 BuildRequires:	libuuid-devel
-BuildRequires:	sed >= 4.0
 BuildRequires:	python
+BuildRequires:	rpm >= 4.4.9-56
 BuildRequires:	rpm-pythonprov
+BuildRequires:	sed >= 4.0
+%if "%{pld_release}" != "ac"
 BuildRequires:	uname(release) >= 2.6
 Requires:	uname(release) >= 2.6
+%endif
 Conflicts:	kernel24
 Conflicts:	kernel24-smp
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -55,7 +62,11 @@ Summary(pl.UTF-8):	Pliki nagłówkowe i dokumentacja programisty do apr
 Group:		Development/Libraries
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 Requires:	automake
+%if "%{pld_release}" != "ac"
 Requires:	libtool >= 2:2.2
+%else
+Requires:	libtool
+%endif
 Requires:	libuuid-devel
 Requires:	python-modules
 
