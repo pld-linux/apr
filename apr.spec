@@ -129,7 +129,11 @@ rm -rf $RPM_BUILD_ROOT
 mv -f $RPM_BUILD_ROOT%{_datadir}/build-1 $RPM_BUILD_ROOT%{_datadir}/build
 install build/{*apr*.m4,*.awk,*.sh,gen-build.py} $RPM_BUILD_ROOT%{_datadir}/build
 ln -snf /usr/share/automake/config.{guess,sub} $RPM_BUILD_ROOT%{_datadir}/build
-ln -snf /usr/share/libtool/config/ltmain.sh $RPM_BUILD_ROOT%{_datadir}/build
+if [ -f /usr/share/libtool/config/ltmain.sh ]; then
+	ln -snf /usr/share/libtool/config/ltmain.sh $RPM_BUILD_ROOT%{_datadir}/build
+else
+	ln -snf /usr/share/libtool/ltmain.sh $RPM_BUILD_ROOT%{_datadir}/build
+fi
 ln -snf /usr/bin/libtool $RPM_BUILD_ROOT%{_datadir}/build
 ln -sf build $RPM_BUILD_ROOT%{_datadir}/build-1
 
