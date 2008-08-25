@@ -2,7 +2,7 @@ Summary:	Apache Portable Runtime
 Summary(pl.UTF-8):	Apache Portable Runtime - przenośna biblioteka uruchomieniowa
 Name:		apr
 Version:	1.3.3
-Release:	1
+Release:	2
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
@@ -107,6 +107,7 @@ EOF
 
 %build
 install /usr/share/automake/config.* build
+%{__autoconf}
 
 %configure \
 	--enable-layout=PLD \
