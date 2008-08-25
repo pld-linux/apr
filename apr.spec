@@ -12,7 +12,7 @@ Patch0:		%{name}-link.patch
 Patch1:		%{name}-metuxmpm.patch
 Patch2:		%{name}-libtool.patch
 URL:		http://apr.apache.org/
-BuildRequires:	autoconf >= 2.13
+BuildRequires:	autoconf >= 2.50
 BuildRequires:	automake
 %if "%{pld_release}" != "ac"
 BuildRequires:	libtool >= 2:2.2
@@ -111,7 +111,7 @@ install /usr/share/automake/config.* build
 
 %configure \
 	--enable-layout=PLD \
-%ifarch %{ix86} %{i8664}
+%ifarch %{ix86} %{x8664}
 %ifnarch i386
 	--enable-nonportable-atomics \
 %endif
