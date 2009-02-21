@@ -1,0 +1,236 @@
+Index: network_io/unix/sockets.c
+===================================================================
+--- network_io/unix/sockets.c	(wersja 746595)
++++ network_io/unix/sockets.c	(kopia robocza)
+@@ -83,7 +83,11 @@
+ apr_status_t apr_socket_create(apr_socket_t **new, int ofamily, int type,
+                                int protocol, apr_pool_t *cont)
+ {
+-    int family = ofamily;
++    int family = ofamily, flags;
++
++#ifdef SOCK_CLOEXEC
++    flags |= SOCK_CLOEXEC;
++#endif
+ 
+     if (family == APR_UNSPEC) {
+ #if APR_HAVE_IPV6
+@@ -126,19 +130,19 @@
+     alloc_socket(new, cont);
+ 
+ #ifndef BEOS_R5
+-    (*new)->socketdes = socket(family, type, protocol);
++    (*new)->socketdes = socket(family, type|flags, protocol);
+ #else
+     /* For some reason BeOS R5 has an unconventional protocol numbering,
+      * so we need to translate here. */
+     switch (protocol) {
+     case 0:
+-        (*new)->socketdes = socket(family, type, 0);
++        (*new)->socketdes = socket(family, type|flags, 0);
+         break;
+     case APR_PROTO_TCP:
+-        (*new)->socketdes = socket(family, type, IPPROTO_TCP);
++        (*new)->socketdes = socket(family, type|flags, IPPROTO_TCP);
+         break;
+     case APR_PROTO_UDP:
+-        (*new)->socketdes = socket(family, type, IPPROTO_UDP);
++        (*new)->socketdes = socket(family, type|flags, IPPROTO_UDP);
+         break;
+     case APR_PROTO_SCTP:
+     default:
+@@ -151,7 +155,7 @@
+ #if APR_HAVE_IPV6
+     if ((*new)->socketdes < 0 && ofamily == APR_UNSPEC) {
+         family = APR_INET;
+-        (*new)->socketdes = socket(family, type, protocol);
++        (*new)->socketdes = socket(family, type|flags, protocol);
+     }
+ #endif
+ 
+@@ -160,6 +164,15 @@
+     }
+     set_socket_vars(*new, family, type, oprotocol);
+ 
++#ifndef SOCK_CLOEXEC
++    flags = fcntl((*new)->socketdes, F_GETFD);
++    if (flags == -1)
++        return errno;
++    flags |= FD_CLOEXEC;
++    if (fcntl((*new)->socketdes, F_SETFD, flags) == -1)
++        return errno;
++#endif
++
+     (*new)->timeout = -1;
+     (*new)->inherit = 0;
+     apr_pool_cleanup_register((*new)->pool, (void *)(*new), socket_cleanup,
+@@ -213,12 +226,16 @@
+ apr_status_t apr_socket_accept(apr_socket_t **new, apr_socket_t *sock,
+                                apr_pool_t *connection_context)
+ {
+-    int s;
++    int s, flags;
+     apr_sockaddr_t sa;
+ 
+     sa.salen = sizeof(sa.sa);
+ 
++#ifdef HAVE_ACCEPT4
++    s = accept4(sock->socketdes, (struct sockaddr *)&sa.sa, &sa.salen, SOCK_CLOEXEC);
++#else
+     s = accept(sock->socketdes, (struct sockaddr *)&sa.sa, &sa.salen);
++#endif
+ 
+     if (s < 0) {
+         return errno;
+@@ -300,6 +317,15 @@
+         (*new)->local_interface_unknown = 1;
+     }
+ 
++#ifndef HAVE_ACCEPT4
++    flags = fcntl((*new)->socketdes, F_GETFD);
++    if (flags == -1)
++        return errno;
++    flags |= FD_CLOEXEC;
++    if (fcntl((*new)->socketdes, F_SETFD, flags) == -1)
++        return errno;
++#endif
++
+     (*new)->inherit = 0;
+     apr_pool_cleanup_register((*new)->pool, (void *)(*new), socket_cleanup,
+                               socket_cleanup);
+Index: include/arch/unix/apr_arch_inherit.h
+===================================================================
+--- include/arch/unix/apr_arch_inherit.h	(wersja 746595)
++++ include/arch/unix/apr_arch_inherit.h	(kopia robocza)
+@@ -27,6 +27,12 @@
+     if (the##name->flag & APR_FILE_NOCLEANUP)                       \
+         return APR_EINVAL;                                          \
+     if (!(the##name->flag & APR_INHERIT)) {                         \
++        int flags = fcntl(the##name->name##des, F_GETFD);           \
++        if (flags == -1)                                            \
++            return errno;                                           \
++        flags &= ~(FD_CLOEXEC);                                     \
++        if (fcntl(the##name->name##des, F_SETFD, flags) == -1)      \
++            return errno;                                           \
+         the##name->flag |= APR_INHERIT;                             \
+         apr_pool_child_cleanup_set(the##name->pool,                 \
+                                    (void *)the##name,               \
+@@ -41,6 +47,12 @@
+     if (the##name->flag & APR_FILE_NOCLEANUP)                       \
+         return APR_EINVAL;                                          \
+     if (the##name->flag & APR_INHERIT) {                            \
++        int flags = fcntl(the##name->name##des, F_GETFD);           \
++        if (flags == -1)                                            \
++            return errno;                                           \
++        flags |= FD_CLOEXEC;                                        \
++        if (fcntl(the##name->name##des, F_SETFD, flags) == -1)      \
++            return errno;                                           \
+         the##name->flag &= ~APR_INHERIT;                            \
+         apr_pool_child_cleanup_set(the##name->pool,                 \
+                                    (void *)the##name,               \
+Index: configure.in
+===================================================================
+--- configure.in	(wersja 746595)
++++ configure.in	(kopia robocza)
+@@ -782,6 +782,9 @@
+    AC_DEFINE([HAVE_EPOLL], 1, [Define if the epoll interface is supported])
+ fi
+ 
++dnl ----------------------------- Checking for extended file descriptor handling
++AC_CHECK_FUNCS(dup3 accept4 epoll_create1)
++
+ dnl ----------------------------- Checking for missing POSIX thread functions
+ AC_CHECK_FUNCS([getpwnam_r getpwuid_r getgrnam_r getgrgid_r])
+ 
+Index: poll/unix/epoll.c
+===================================================================
+--- poll/unix/epoll.c	(wersja 746595)
++++ poll/unix/epoll.c	(kopia robocza)
+@@ -95,7 +95,11 @@
+     apr_status_t rv;
+     int fd;
+ 
++#ifdef HAVE_EPOLL_CREATE1
++    fd = epoll_create1(EPOLL_CLOEXEC);
++#else
+     fd = epoll_create(size);
++#endif
+     if (fd < 0) {
+         pollset->p = NULL;
+         return errno;
+@@ -338,8 +342,12 @@
+                                        apr_uint32_t flags)
+ {
+     int fd;
+-    
++   
++#ifdef HAVE_EPOLL_CREATE1
++    fd = epoll_create1(EPOLL_CLOEXEC);
++#else
+     fd = epoll_create(size);
++#endif
+     
+     if (fd < 0) {
+         return apr_get_netos_error();
+Index: file_io/unix/open.c
+===================================================================
+--- file_io/unix/open.c	(wersja 746595)
++++ file_io/unix/open.c	(kopia robocza)
+@@ -127,6 +127,10 @@
+         oflags |= O_BINARY;
+     }
+ #endif
++#ifdef O_CLOEXEC
++    if (!(flag & APR_FILE_NOCLEANUP))
++	oflags |= O_CLOEXEC;
++#endif
+     
+ #if APR_HAS_LARGE_FILES && defined(_LARGEFILE64_SOURCE)
+     oflags |= O_LARGEFILE;
+@@ -337,6 +341,12 @@
+         return APR_EINVAL;
+     }
+     if (thefile->flags & APR_INHERIT) {
++        int flags = fcntl(thefile->filedes, F_GETFD);
++        if (flags == -1)
++             return errno;
++        flags |= FD_CLOEXEC;
++        if (fcntl(thefile->filedes, F_SETFD, flags) == -1)
++             return errno;
+         thefile->flags &= ~APR_INHERIT;
+         apr_pool_child_cleanup_set(thefile->pool,
+                                    (void *)thefile,
+Index: file_io/unix/filedup.c
+===================================================================
+--- file_io/unix/filedup.c	(wersja 746595)
++++ file_io/unix/filedup.c	(kopia robocza)
+@@ -24,14 +24,28 @@
+                              apr_file_t *old_file, apr_pool_t *p,
+                              int which_dup)
+ {
+-    int rv;
++    int rv, flags = 0;
+     
+     if (which_dup == 2) {
+         if ((*new_file) == NULL) {
+             /* We can't dup2 unless we have a valid new_file */
+             return APR_EINVAL;
+         }
++#ifdef HAVE_DUP3
++        if (!(old_file->flags & APR_INHERIT))
++            flags |= O_CLOEXEC;
++        rv = dup3(old_file->filedes, (*new_file)->filedes, flags);
++#else
++        if (!(old_file->flags & APR_INHERIT)) {
++            flags = fcntl(old_file->filedes, F_GETFD);
++            if (flags == -1)
++                return errno;
++            flags |= FD_CLOEXEC;
++            if (fcntl(old_file->filedes, F_SETFD, flags) == -1)
++                return errno;
++        }
+         rv = dup2(old_file->filedes, (*new_file)->filedes);
++#endif
+     } else {
+         rv = dup(old_file->filedes);
+     }
