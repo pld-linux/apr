@@ -2,7 +2,7 @@ Summary:	Apache Portable Runtime
 Summary(pl.UTF-8):	Apache Portable Runtime - przenośna biblioteka uruchomieniowa
 Name:		apr
 Version:	1.3.3
-Release:	7
+Release:	8
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
@@ -15,6 +15,7 @@ Patch3:		%{name}-bug-46425.patch
 URL:		http://apr.apache.org/
 BuildRequires:	autoconf >= 2.50
 BuildRequires:	automake
+BuildRequires:	glibc-devel >= 6:2.9
 %if "%{pld_release}" != "ac"
 BuildRequires:	libtool >= 2:2.2
 %else
@@ -26,7 +27,7 @@ BuildRequires:	rpm >= 4.4.9-56
 BuildRequires:	rpm-pythonprov
 BuildRequires:	sed >= 4.0
 %if "%{pld_release}" != "ac"
-BuildRequires:	uname(release) >= 2.6.27
+BuildRequires:	uname(release) >= 2.6
 Requires:	uname(release) >= 2.6.27
 %endif
 Conflicts:	kernel24
