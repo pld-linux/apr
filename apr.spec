@@ -1,8 +1,9 @@
+%bcond_with	tests
 Summary:	Apache Portable Runtime
 Summary(pl.UTF-8):	Apache Portable Runtime - przenośna biblioteka uruchomieniowa
 Name:		apr
 Version:	1.3.3
-Release:	8
+Release:	9
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
@@ -95,7 +96,7 @@ Statyczna biblioteka apr.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p0
+%patch3 -p1
 
 cat >> config.layout <<'EOF'
 <Layout PLD>
@@ -122,6 +123,8 @@ install /usr/share/automake/config.* build
 	--enable-threads \
 	--with-devrandom=/dev/urandom
 %{__make}
+
+%{?with_tests:%{__make} -j1 test}
 
 %install
 rm -rf $RPM_BUILD_ROOT
