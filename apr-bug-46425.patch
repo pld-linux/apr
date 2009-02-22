@@ -7,7 +7,7 @@ Index: network_io/unix/sockets.c
                                 int protocol, apr_pool_t *cont)
  {
 -    int family = ofamily;
-+    int family = ofamily, flags;
++    int family = ofamily, flags = 0;
 +
 +#ifdef SOCK_CLOEXEC
 +    flags |= SOCK_CLOEXEC;
