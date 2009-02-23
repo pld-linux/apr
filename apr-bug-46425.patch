@@ -1,37 +1,7 @@
-diff -ur apr-1.3.3.org/configure.in apr-1.3.3/configure.in
---- apr-1.3.3.org/configure.in	2009-02-22 15:55:36.340196167 +0100
-+++ apr-1.3.3/configure.in	2009-02-22 15:56:09.198943991 +0100
-@@ -771,6 +771,9 @@
-    AC_DEFINE([HAVE_EPOLL], 1, [Define if the epoll interface is supported])
- fi
- 
-+dnl ----------------------------- Checking for extended file descriptor handling
-+AC_CHECK_FUNCS(dup3 accept4 epoll_create1)
-+
- dnl ----------------------------- Checking for missing POSIX thread functions
- AC_CHECK_FUNCS([getpwnam_r getpwuid_r getgrnam_r getgrgid_r])
- 
-diff -ur apr-1.3.3.org/file_io/netware/mktemp.c apr-1.3.3/file_io/netware/mktemp.c
---- apr-1.3.3.org/file_io/netware/mktemp.c	2007-06-01 19:58:04.000000000 +0200
-+++ apr-1.3.3/file_io/netware/mktemp.c	2009-02-22 15:56:09.402572969 +0100
-@@ -43,9 +43,12 @@
- 
- 
- 	if (!(flags & APR_FILE_NOCLEANUP)) {
-+            int fdflags = fcntl(fd, F_GETFD);
-+            fdflags |= FD_CLOEXEC;
-+            fcntl(fd, F_SETFD, fdflags);
- 	    apr_pool_cleanup_register((*fp)->pool, (void *)(*fp),
- 				      apr_unix_file_cleanup,
--				      apr_unix_child_file_cleanup);
-+				      apr_pool_cleanup_null);
- 	}
-     }
- 
-diff -ur apr-1.3.3.org/file_io/unix/filedup.c apr-1.3.3/file_io/unix/filedup.c
+diff -urN apr-1.3.3.org/file_io/unix/filedup.c apr-1.3.3/file_io/unix/filedup.c
 --- apr-1.3.3.org/file_io/unix/filedup.c	2007-05-15 04:37:16.000000000 +0200
-+++ apr-1.3.3/file_io/unix/filedup.c	2009-02-22 15:56:09.402572969 +0100
-@@ -24,14 +24,28 @@
++++ apr-1.3.3/file_io/unix/filedup.c	2009-02-23 08:15:10.023641368 +0100
+@@ -24,7 +24,7 @@
                               apr_file_t *old_file, apr_pool_t *p,
                               int which_dup)
  {
@@ -40,14 +10,9 @@ diff -ur apr-1.3.3.org/file_io/unix/filedup.c apr-1.3.3/file_io/unix/filedup.c
      
      if (which_dup == 2) {
          if ((*new_file) == NULL) {
-             /* We can't dup2 unless we have a valid new_file */
+@@ -32,6 +32,14 @@
              return APR_EINVAL;
          }
-+#ifdef HAVE_DUP3
-+        if (!(old_file->flags & APR_INHERIT))
-+            flags |= O_CLOEXEC;
-+        rv = dup3(old_file->filedes, (*new_file)->filedes, flags);
-+#else
          rv = dup2(old_file->filedes, (*new_file)->filedes);
 +        if (!(old_file->flags & APR_INHERIT)) {
 +            flags = fcntl((*new_file)->filedes, F_GETFD);
@@ -57,61 +22,27 @@ diff -ur apr-1.3.3.org/file_io/unix/filedup.c apr-1.3.3/file_io/unix/filedup.c
 +            if (fcntl((*new_file)->filedes, F_SETFD, flags) == -1)
 +                return errno;
 +        }
-+#endif
      } else {
          rv = dup(old_file->filedes);
      }
-@@ -78,9 +92,8 @@
-      * already closed with apr_file_close, because the expected
-      * cleanup was already killed.
-      */
--    if (which_dup == 2) {
-+    if (which_dup == 2)
-         return APR_SUCCESS;
--    }
- 
-     /* apr_file_dup() retains all old_file flags with the exceptions
-      * of APR_INHERIT and APR_FILE_NOCLEANUP.
-@@ -92,7 +105,7 @@
- 
-     apr_pool_cleanup_register((*new_file)->pool, (void *)(*new_file),
-                               apr_unix_file_cleanup, 
--                              apr_unix_child_file_cleanup);
-+                              apr_pool_cleanup_null);
- #ifndef WAITIO_USES_POLL
-     /* Start out with no pollset.  apr_wait_for_io_or_timeout() will
-      * initialize the pollset if needed.
-@@ -144,9 +157,7 @@
-     if (!(old_file->flags & APR_FILE_NOCLEANUP)) {
-         apr_pool_cleanup_register(p, (void *)(*new_file), 
-                                   apr_unix_file_cleanup,
--                                  ((*new_file)->flags & APR_INHERIT)
--                                     ? apr_pool_cleanup_null
--                                     : apr_unix_child_file_cleanup);
-+                                  apr_pool_cleanup_null);
-     }
- 
-     old_file->filedes = -1;
-diff -ur apr-1.3.3.org/file_io/unix/mktemp.c apr-1.3.3/file_io/unix/mktemp.c
+diff -urN apr-1.3.3.org/file_io/unix/mktemp.c apr-1.3.3/file_io/unix/mktemp.c
 --- apr-1.3.3.org/file_io/unix/mktemp.c	2007-06-01 19:58:04.000000000 +0200
-+++ apr-1.3.3/file_io/unix/mktemp.c	2009-02-22 15:56:09.402572969 +0100
-@@ -203,9 +203,12 @@
++++ apr-1.3.3/file_io/unix/mktemp.c	2009-02-23 08:18:30.420011379 +0100
+@@ -203,6 +203,11 @@
      (*fp)->fname = apr_pstrdup(p, template);
  
      if (!(flags & APR_FILE_NOCLEANUP)) {
 +        int fdflags = fcntl(fd, F_GETFD);
-+        fdflags |= FD_CLOEXEC;
-+        fcntl(fd, F_SETFD, fdflags);
++        if (fdflags != -1) {
++            fdflags |= FD_CLOEXEC;
++            fcntl(fd, F_SETFD, fdflags);
++        }
          apr_pool_cleanup_register((*fp)->pool, (void *)(*fp),
                                    apr_unix_file_cleanup,
--                                  apr_unix_child_file_cleanup);
-+                                  apr_pool_cleanup_null);
-     }
- #endif
-     return APR_SUCCESS;
-diff -ur apr-1.3.3.org/file_io/unix/open.c apr-1.3.3/file_io/unix/open.c
+                                   apr_unix_child_file_cleanup);
+diff -urN apr-1.3.3.org/file_io/unix/open.c apr-1.3.3/file_io/unix/open.c
 --- apr-1.3.3.org/file_io/unix/open.c	2007-05-15 04:37:16.000000000 +0200
-+++ apr-1.3.3/file_io/unix/open.c	2009-02-22 15:56:09.402572969 +0100
++++ apr-1.3.3/file_io/unix/open.c	2009-02-23 08:13:44.356609676 +0100
 @@ -125,7 +125,15 @@
          oflags |= O_BINARY;
      }
@@ -141,45 +72,10 @@ diff -ur apr-1.3.3.org/file_io/unix/open.c apr-1.3.3/file_io/unix/open.c
  
      (*new) = (apr_file_t *)apr_pcalloc(pool, sizeof(apr_file_t));
      (*new)->pool = pool;
-@@ -194,7 +207,7 @@
-     if (!(flag & APR_FILE_NOCLEANUP)) {
-         apr_pool_cleanup_register((*new)->pool, (void *)(*new), 
-                                   apr_unix_file_cleanup, 
--                                  apr_unix_child_file_cleanup);
-+                                  apr_pool_cleanup_null);
-     }
-     return APR_SUCCESS;
- }
-@@ -325,23 +338,6 @@
- }
- 
- APR_IMPLEMENT_INHERIT_SET(file, flags, pool, apr_unix_file_cleanup)
--
--/* We need to do this by hand instead of using APR_IMPLEMENT_INHERIT_UNSET
-- * because the macro sets both cleanups to the same function, which is not
-- * suitable on Unix (see PR 41119). */
--APR_DECLARE(apr_status_t) apr_file_inherit_unset(apr_file_t *thefile)
--{
--    if (thefile->flags & APR_FILE_NOCLEANUP) {
--        return APR_EINVAL;
--    }
--    if (thefile->flags & APR_INHERIT) {
--        thefile->flags &= ~APR_INHERIT;
--        apr_pool_child_cleanup_set(thefile->pool,
--                                   (void *)thefile,
--                                   apr_unix_file_cleanup,
--                                   apr_unix_child_file_cleanup);
--    }
--    return APR_SUCCESS;
--}
-+APR_IMPLEMENT_INHERIT_UNSET(file, flags, pool, apr_unix_file_cleanup)
- 
- APR_POOL_IMPLEMENT_ACCESSOR(file)
-Tylko w apr-1.3.3/file_io/unix: open.c.orig
-diff -ur apr-1.3.3.org/include/arch/unix/apr_arch_inherit.h apr-1.3.3/include/arch/unix/apr_arch_inherit.h
+diff -urN apr-1.3.3.org/include/arch/unix/apr_arch_inherit.h apr-1.3.3/include/arch/unix/apr_arch_inherit.h
 --- apr-1.3.3.org/include/arch/unix/apr_arch_inherit.h	2006-08-03 12:55:31.000000000 +0200
-+++ apr-1.3.3/include/arch/unix/apr_arch_inherit.h	2009-02-22 15:56:09.402572969 +0100
-@@ -27,10 +27,13 @@
++++ apr-1.3.3/include/arch/unix/apr_arch_inherit.h	2009-02-23 08:17:48.033064583 +0100
+@@ -27,6 +27,12 @@
      if (the##name->flag & APR_FILE_NOCLEANUP)                       \
          return APR_EINVAL;                                          \
      if (!(the##name->flag & APR_INHERIT)) {                         \
@@ -190,13 +86,9 @@ diff -ur apr-1.3.3.org/include/arch/unix/apr_arch_inherit.h apr-1.3.3/include/ar
 +        if (fcntl(the##name->name##des, F_SETFD, flags) == -1)      \
 +            return errno;                                           \
          the##name->flag |= APR_INHERIT;                             \
--        apr_pool_child_cleanup_set(the##name->pool,                 \
--                                   (void *)the##name,               \
--                                   cleanup, apr_pool_cleanup_null); \
-     }                                                               \
-     return APR_SUCCESS;                                             \
- }
-@@ -41,10 +44,13 @@
+         apr_pool_child_cleanup_set(the##name->pool,                 \
+                                    (void *)the##name,               \
+@@ -41,6 +47,12 @@
      if (the##name->flag & APR_FILE_NOCLEANUP)                       \
          return APR_EINVAL;                                          \
      if (the##name->flag & APR_INHERIT) {                            \
@@ -207,78 +99,35 @@ diff -ur apr-1.3.3.org/include/arch/unix/apr_arch_inherit.h apr-1.3.3/include/ar
 +        if (fcntl(the##name->name##des, F_SETFD, flags) == -1)      \
 +            return errno;                                           \
          the##name->flag &= ~APR_INHERIT;                            \
--        apr_pool_child_cleanup_set(the##name->pool,                 \
--                                   (void *)the##name,               \
--                                   cleanup, cleanup);               \
-     }                                                               \
-     return APR_SUCCESS;                                             \
- }
-diff -ur apr-1.3.3.org/network_io/unix/sockets.c apr-1.3.3/network_io/unix/sockets.c
---- apr-1.3.3.org/network_io/unix/sockets.c	2009-02-22 15:55:36.179428770 +0100
-+++ apr-1.3.3/network_io/unix/sockets.c	2009-02-22 16:09:42.820111487 +0100
-@@ -83,7 +83,11 @@
+         apr_pool_child_cleanup_set(the##name->pool,                 \
+                                    (void *)the##name,               \
+diff -urN apr-1.3.3.org/network_io/unix/sockets.c apr-1.3.3/network_io/unix/sockets.c
+--- apr-1.3.3.org/network_io/unix/sockets.c	2009-02-23 08:08:40.966440943 +0100
++++ apr-1.3.3/network_io/unix/sockets.c	2009-02-23 08:19:02.086419869 +0100
+@@ -83,7 +83,7 @@
  apr_status_t apr_socket_create(apr_socket_t **new, int ofamily, int type,
                                 int protocol, apr_pool_t *cont)
  {
 -    int family = ofamily;
-+    int family = ofamily, flags = 0;
-+
-+#ifdef SOCK_CLOEXEC
-+    flags |= SOCK_CLOEXEC;
-+#endif
++    int family = ofamily, flags;
  
      if (family == APR_UNSPEC) {
  #if APR_HAVE_IPV6
-@@ -96,19 +100,19 @@
-     alloc_socket(new, cont);
- 
- #ifndef BEOS_R5
--    (*new)->socketdes = socket(family, type, protocol);
-+    (*new)->socketdes = socket(family, type|flags, protocol);
- #else
-     /* For some reason BeOS R5 has an unconventional protocol numbering,
-      * so we need to translate here. */
-     switch (protocol) {
-     case 0:
--        (*new)->socketdes = socket(family, type, 0);
-+        (*new)->socketdes = socket(family, type|flags, 0);
-         break;
-     case APR_PROTO_TCP:
--        (*new)->socketdes = socket(family, type, IPPROTO_TCP);
-+        (*new)->socketdes = socket(family, type|flags, IPPROTO_TCP);
-         break;
-     case APR_PROTO_UDP:
--        (*new)->socketdes = socket(family, type, IPPROTO_UDP);
-+        (*new)->socketdes = socket(family, type|flags, IPPROTO_UDP);
-         break;
-     case APR_PROTO_SCTP:
-     default:
-@@ -121,7 +125,7 @@
- #if APR_HAVE_IPV6
-     if ((*new)->socketdes < 0 && ofamily == APR_UNSPEC) {
-         family = APR_INET;
--        (*new)->socketdes = socket(family, type, protocol);
-+        (*new)->socketdes = socket(family, type|flags, protocol);
-     }
- #endif
- 
-@@ -130,6 +134,15 @@
+@@ -130,6 +130,13 @@
      }
      set_socket_vars(*new, family, type, protocol);
  
-+#ifndef SOCK_CLOEXEC
 +    flags = fcntl((*new)->socketdes, F_GETFD);
 +    if (flags == -1)
 +        return errno;
 +    flags |= FD_CLOEXEC;
 +    if (fcntl((*new)->socketdes, F_SETFD, flags) == -1)
 +        return errno;
-+#endif
 +
      (*new)->timeout = -1;
      (*new)->inherit = 0;
      apr_pool_cleanup_register((*new)->pool, (void *)(*new), socket_cleanup,
-@@ -176,12 +189,16 @@
+@@ -183,7 +183,7 @@
  apr_status_t apr_socket_accept(apr_socket_t **new, apr_socket_t *sock,
                                 apr_pool_t *connection_context)
  {
@@ -287,61 +136,46 @@ diff -ur apr-1.3.3.org/network_io/unix/sockets.c apr-1.3.3/network_io/unix/socke
      apr_sockaddr_t sa;
  
      sa.salen = sizeof(sa.sa);
- 
-+#ifdef HAVE_ACCEPT4
-+    s = accept4(sock->socketdes, (struct sockaddr *)&sa.sa, &sa.salen, SOCK_CLOEXEC);
-+#else
-     s = accept(sock->socketdes, (struct sockaddr *)&sa.sa, &sa.salen);
-+#endif
- 
-     if (s < 0) {
-         return errno;
-@@ -255,6 +272,15 @@
+@@ -255,6 +262,13 @@
          (*new)->local_interface_unknown = 1;
      }
  
-+#ifndef HAVE_ACCEPT4
 +    flags = fcntl((*new)->socketdes, F_GETFD);
 +    if (flags == -1)
 +        return errno;
 +    flags |= FD_CLOEXEC;
 +    if (fcntl((*new)->socketdes, F_SETFD, flags) == -1)
 +        return errno;
-+#endif
 +
      (*new)->inherit = 0;
      apr_pool_cleanup_register((*new)->pool, (void *)(*new), socket_cleanup,
                                socket_cleanup);
-diff -ur apr-1.3.3.org/poll/unix/epoll.c apr-1.3.3/poll/unix/epoll.c
+diff -urN apr-1.3.3.org/poll/unix/epoll.c apr-1.3.3/poll/unix/epoll.c
 --- apr-1.3.3.org/poll/unix/epoll.c	2008-04-13 13:37:52.000000000 +0200
-+++ apr-1.3.3/poll/unix/epoll.c	2009-02-22 16:01:22.005735200 +0100
-@@ -91,14 +91,24 @@
++++ apr-1.3.3/poll/unix/epoll.c	2009-02-23 08:20:07.663209400 +0100
+@@ -91,7 +91,7 @@
                                               apr_uint32_t flags)
  {
      apr_status_t rv;
 -    int fd;
 +    int fd, fdflags;
  
-+#ifdef HAVE_EPOLL_CREATE1
-+    fd = epoll_create1(EPOLL_CLOEXEC);
-+#else
      fd = epoll_create(size);
-+#endif
      if (fd < 0) {
-         *pollset = NULL;
+@@ -99,6 +99,12 @@
          return errno;
      }
  
-+#ifndef HAVE_EPOLL_CREATE1
 +    fdflags = fcntl(fd, F_GETFD);
-+    fdflags |= FD_CLOEXEC;
-+    fcntl(fd, F_SETFD, fdflags);
-+#endif
++    if (fdflags != -1) {
++        fdflags |= FD_CLOEXEC;
++        fcntl(fd, F_SETFD, fdflags);
++    }
 +
      *pollset = apr_palloc(p, sizeof(**pollset));
  #if APR_HAS_THREADS
      if ((flags & APR_POLLSET_THREADSAFE) &&
-@@ -315,14 +325,24 @@
+@@ -315,14 +321,20 @@
                                              apr_pool_t *p,
                                              apr_uint32_t flags)
  {
@@ -349,23 +183,18 @@ diff -ur apr-1.3.3.org/poll/unix/epoll.c apr-1.3.3/poll/unix/epoll.c
 -    
 +    int fd, fdflags;
 +   
-+#ifdef HAVE_EPOLL_CREATE1
-+    fd = epoll_create1(EPOLL_CLOEXEC);
-+#else
      fd = epoll_create(size);
-+#endif
      
      if (fd < 0) {
          *pollcb = NULL;
          return apr_get_netos_error();
      }
 +
-+#ifndef HAVE_EPOLL_CREATE1
 +    fdflags = fcntl(fd, F_GETFD);
-+    fdflags |= FD_CLOEXEC;
-+    fcntl(fd, F_SETFD, fdflags);
-+#endif
++    if (fdflags != -1) {
++        fdflags |= FD_CLOEXEC;
++        fcntl(fd, F_SETFD, fdflags);
++    }
      
      *pollcb = apr_palloc(p, sizeof(**pollcb));
      (*pollcb)->nalloc = size;
-
