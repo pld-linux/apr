@@ -1,4 +1,7 @@
-%bcond_with	tests
+#
+# Conditional build:
+%bcond_with	tests	# perform make test
+#
 Summary:	Apache Portable Runtime
 Summary(pl.UTF-8):	Apache Portable Runtime - przenośna biblioteka uruchomieniowa
 Name:		apr
