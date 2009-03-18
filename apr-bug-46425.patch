@@ -14,7 +14,7 @@ diff -urN apr-1.3.3.org/file_io/unix/filedup.c apr-1.3.3/file_io/unix/filedup.c
              return APR_EINVAL;
          }
          rv = dup2(old_file->filedes, (*new_file)->filedes);
-+        if (!(old_file->flags & APR_INHERIT)) {
++        if (!(old_file->flags & (APR_FILE_NOCLEANUP|APR_INHERIT))) {
 +            fdflags = fcntl((*new_file)->filedes, F_GETFD);
 +            if (fdflags == -1)
 +                return errno;
