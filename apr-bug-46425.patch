@@ -6,7 +6,7 @@ diff -urN apr-1.3.3.org/file_io/unix/filedup.c apr-1.3.3/file_io/unix/filedup.c
                               int which_dup)
  {
 -    int rv;
-+    int rv, flags = 0;
++    int rv, fdflags;
      
      if (which_dup == 2) {
          if ((*new_file) == NULL) {
@@ -15,11 +15,11 @@ diff -urN apr-1.3.3.org/file_io/unix/filedup.c apr-1.3.3/file_io/unix/filedup.c
          }
          rv = dup2(old_file->filedes, (*new_file)->filedes);
 +        if (!(old_file->flags & APR_INHERIT)) {
-+            flags = fcntl((*new_file)->filedes, F_GETFD);
-+            if (flags == -1)
++            fdflags = fcntl((*new_file)->filedes, F_GETFD);
++            if (fdflags == -1)
 +                return errno;
-+            flags |= FD_CLOEXEC;
-+            if (fcntl((*new_file)->filedes, F_SETFD, flags) == -1)
++            fdflags |= FD_CLOEXEC;
++            if (fcntl((*new_file)->filedes, F_SETFD, fdflags) == -1)
 +                return errno;
 +        }
      } else {
@@ -79,11 +79,11 @@ diff -urN apr-1.3.3.org/include/arch/unix/apr_arch_inherit.h apr-1.3.3/include/a
      if (the##name->flag & APR_FILE_NOCLEANUP)                       \
          return APR_EINVAL;                                          \
      if (!(the##name->flag & APR_INHERIT)) {                         \
-+        int flags = fcntl(the##name->name##des, F_GETFD);           \
-+        if (flags == -1)                                            \
++        int fdflags = fcntl(the##name->name##des, F_GETFD);           \
++        if (fdflags == -1)                                            \
 +            return errno;                                           \
-+        flags &= ~(FD_CLOEXEC);                                     \
-+        if (fcntl(the##name->name##des, F_SETFD, flags) == -1)      \
++        fdflags &= ~(FD_CLOEXEC);                                     \
++        if (fcntl(the##name->name##des, F_SETFD, fdflags) == -1)      \
 +            return errno;                                           \
          the##name->flag |= APR_INHERIT;                             \
          apr_pool_child_cleanup_set(the##name->pool,                 \
@@ -92,11 +92,11 @@ diff -urN apr-1.3.3.org/include/arch/unix/apr_arch_inherit.h apr-1.3.3/include/a
      if (the##name->flag & APR_FILE_NOCLEANUP)                       \
          return APR_EINVAL;                                          \
      if (the##name->flag & APR_INHERIT) {                            \
-+        int flags = fcntl(the##name->name##des, F_GETFD);           \
-+        if (flags == -1)                                            \
++        int fdflags = fcntl(the##name->name##des, F_GETFD);           \
++        if (fdflags == -1)                                            \
 +            return errno;                                           \
-+        flags |= FD_CLOEXEC;                                        \
-+        if (fcntl(the##name->name##des, F_SETFD, flags) == -1)      \
++        fdflags |= FD_CLOEXEC;                                        \
++        if (fcntl(the##name->name##des, F_SETFD, fdflags) == -1)      \
 +            return errno;                                           \
          the##name->flag &= ~APR_INHERIT;                            \
          apr_pool_child_cleanup_set(the##name->pool,                 \
@@ -109,7 +109,7 @@ diff -urN apr-1.3.3.org/network_io/unix/sockets.c apr-1.3.3/network_io/unix/sock
                                 int protocol, apr_pool_t *cont)
  {
 -    int family = ofamily;
-+    int family = ofamily, flags = 0;
++    int family = ofamily, fdflags;
  
      if (family == APR_UNSPEC) {
  #if APR_HAVE_IPV6
@@ -117,11 +117,11 @@ diff -urN apr-1.3.3.org/network_io/unix/sockets.c apr-1.3.3/network_io/unix/sock
      }
      set_socket_vars(*new, family, type, protocol);
  
-+    flags = fcntl((*new)->socketdes, F_GETFD);
-+    if (flags == -1)
++    fdflags = fcntl((*new)->socketdes, F_GETFD);
++    if (fdflags == -1)
 +        return errno;
-+    flags |= FD_CLOEXEC;
-+    if (fcntl((*new)->socketdes, F_SETFD, flags) == -1)
++    fdflags |= FD_CLOEXEC;
++    if (fcntl((*new)->socketdes, F_SETFD, fdflags) == -1)
 +        return errno;
 +
      (*new)->timeout = -1;
@@ -132,7 +132,7 @@ diff -urN apr-1.3.3.org/network_io/unix/sockets.c apr-1.3.3/network_io/unix/sock
                                 apr_pool_t *connection_context)
  {
 -    int s;
-+    int s, flags;
++    int s, fdflags;
      apr_sockaddr_t sa;
  
      sa.salen = sizeof(sa.sa);
@@ -140,11 +140,11 @@ diff -urN apr-1.3.3.org/network_io/unix/sockets.c apr-1.3.3/network_io/unix/sock
          (*new)->local_interface_unknown = 1;
      }
  
-+    flags = fcntl((*new)->socketdes, F_GETFD);
-+    if (flags == -1)
++    fdflags = fcntl((*new)->socketdes, F_GETFD);
++    if (fdflags == -1)
 +        return errno;
-+    flags |= FD_CLOEXEC;
-+    if (fcntl((*new)->socketdes, F_SETFD, flags) == -1)
++    fdflags |= FD_CLOEXEC;
++    if (fcntl((*new)->socketdes, F_SETFD, fdflags) == -1)
 +        return errno;
 +
      (*new)->inherit = 0;
