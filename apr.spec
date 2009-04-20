@@ -6,16 +6,15 @@ Summary:	Apache Portable Runtime
 Summary(pl.UTF-8):	Apache Portable Runtime - przenośna biblioteka uruchomieniowa
 Name:		apr
 Version:	1.3.3
-Release:	13
+Release:	14
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
 Source0:	http://www.apache.org/dist/apr/%{name}-%{version}.tar.bz2
 # Source0-md5:	2090c21dee4f0eb1512604127dcd158f
 Patch0:		%{name}-link.patch
-Patch1:		%{name}-metuxmpm.patch
-Patch2:		%{name}-libtool.patch
-Patch3:		%{name}-bug-46425.patch
+Patch1:		%{name}-libtool.patch
+Patch2:		%{name}-bug-46425.patch
 URL:		http://apr.apache.org/
 BuildRequires:	autoconf >= 2.50
 BuildRequires:	automake
@@ -101,7 +100,6 @@ Statyczna biblioteka apr.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
 
 cat >> config.layout <<'EOF'
 <Layout PLD>
