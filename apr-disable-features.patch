@@ -1,16 +1,43 @@
-diff -urN apr-1.3.6.org/configure.in apr-1.3.6/configure.in
---- apr-1.3.6.org/configure.in	2009-07-01 23:43:47.000000000 +0200
-+++ apr-1.3.6/configure.in	2009-07-25 22:49:20.170550136 +0200
-@@ -779,7 +779,7 @@
- fi
+diff -urN apr-1.3.7.org/configure.in apr-1.3.7/configure.in
+--- apr-1.3.7.org/configure.in	2009-07-18 01:14:25.000000000 +0200
++++ apr-1.3.7/configure.in	2009-07-25 23:22:56.127016008 +0200
+@@ -787,7 +787,7 @@
  
- dnl ----------------------------- Checking for extended file descriptor handling
--AC_CHECK_FUNCS(dup3 accept4 epoll_create1)
-+dnl AC_CHECK_FUNCS(dup3 accept4 epoll_create1)
+ int main()
+ {
+-    return epoll_create1(0) == -1;
++    return 1;
+ }], [apr_cv_epoll_create1=yes], [apr_cv_epoll_create1=no], [apr_cv_epoll_create1=no])])
  
- AC_CACHE_CHECK([for SOCK_CLOEXEC support], [apr_cv_sock_cloexec],
- [AC_TRY_RUN([
-@@ -788,7 +788,7 @@
+ if test "$apr_cv_epoll_create1" = "yes"; then
+@@ -801,7 +801,7 @@
+ 
+ int main()
+ {
+-    return dup3(STDOUT_FILENO, STDERR_FILENO, 0) == -1;
++    return 1;
+ }], [apr_cv_dup3=yes], [apr_cv_dup3=no], [apr_cv_dup3=no])])
+ 
+ if test "$apr_cv_dup3" = "yes"; then
+@@ -854,7 +854,7 @@
+             close(fd);
+             waitpid(pid, &status, 0);
+             unlink(A4_SOCK);
+-            return 0;
++            return 1;
+         }
+ 
+ cleanup_failure:
+@@ -878,7 +878,7 @@
+             ;
+ 
+         close(fd);
+-        return 0;
++        return 1;
+     }
+ }], [apr_cv_accept4=yes], [apr_cv_accept4=no], [apr_cv_accept4=no])])
+ 
+@@ -893,7 +893,7 @@
  
  int main()
  {
