@@ -118,7 +118,6 @@ install /usr/share/automake/config.* build
 %{__autoconf}
 
 %configure \
-	apr_cv_sock_cloexec=no \
 	--enable-layout=PLD \
 %ifarch %{ix86} %{x8664}
 %ifnarch i386
