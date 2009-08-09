@@ -5,13 +5,13 @@
 Summary:	Apache Portable Runtime
 Summary(pl.UTF-8):	Apache Portable Runtime - przenośna biblioteka uruchomieniowa
 Name:		apr
-Version:	1.3.7
+Version:	1.3.8
 Release:	1
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
 Source0:	http://www.apache.org/dist/apr/%{name}-%{version}.tar.bz2
-# Source0-md5:	1414f695a236a2bf8e470ca624d6a2e8
+# Source0-md5:	3c7e3a39ae3d3573f49cb74e2dbf87a2
 Patch0:		%{name}-link.patch
 Patch1:		%{name}-libtool.patch
 # disable some things that require recent kernel
@@ -128,7 +128,7 @@ install /usr/share/automake/config.* build
 	--with-devrandom=/dev/urandom
 %{__make}
 
-%{?with_tests:%{__make} -j1 test}
+%{?with_tests:%{__make} -j1 check}
 
 %install
 rm -rf $RPM_BUILD_ROOT
