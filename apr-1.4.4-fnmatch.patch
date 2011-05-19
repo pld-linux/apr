@@ -1,0 +1,38 @@
+diff -ur apr-1.4.4-orig/strings/apr_fnmatch.c apr-1.4.4/strings/apr_fnmatch.c
+--- apr-1.4.4-orig/strings/apr_fnmatch.c	2011-05-03 06:51:24.000000000 +0200
++++ apr-1.4.4/strings/apr_fnmatch.c	2011-05-19 20:50:52.042450131 +0200
+@@ -196,8 +196,11 @@
+     const char *mismatch = NULL;
+     int matchlen = 0;
+ 
+-    while (*pattern)
+-    {
++    if (*pattern == '*')
++			goto firstsegment;
++
++	while (*pattern && *string)
++	{
+         /* Match balanced slashes, starting a new segment pattern
+          */
+         if (slash && escape && (*pattern == '\\') && (pattern[1] == '/'))
+@@ -207,6 +210,7 @@
+             ++string;
+         }            
+ 
++firstsegment:
+         /* At the beginning of each segment, validate leading period behavior.
+          */
+         if ((flags & APR_FNM_PERIOD) && (*string == '.'))
+@@ -361,9 +365,9 @@
+             return APR_FNM_NOMATCH;
+     }
+ 
+-    /* pattern is at EOS; if string is also, declare success
++    /* Where both pattern and string are at EOS, declare success
+      */
+-    if (!*string)
++    if (!*string && !*pattern)
+         return 0;
+ 
+     /* pattern didn't match to the end of string */
+Tylko w apr-1.4.4/strings: apr_fnmatch.c~
