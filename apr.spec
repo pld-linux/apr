@@ -19,8 +19,8 @@ Patch2:		%{name}-disable-features.patch
 URL:		http://apr.apache.org/
 BuildRequires:	autoconf >= 2.59
 BuildRequires:	automake
-BuildRequires:	glibc-devel >= 6:2.9
 %if "%{pld_release}" != "ac"
+BuildRequires:	glibc-devel >= 6:2.9
 BuildRequires:	libtool >= 2:2.2
 %else
 BuildRequires:	libtool
