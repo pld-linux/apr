@@ -1,0 +1,20 @@
+--- apr-1.3.0/configure.in.orig	2008-05-02 20:55:47.000000000 +0200
++++ apr-1.3.0/configure.in	2008-06-16 22:56:55.094888283 +0200
+@@ -600,7 +600,7 @@
+       AC_SEARCH_LIBS(gethostbyname, nsl)
+       AC_SEARCH_LIBS(gethostname, nsl)
+       AC_SEARCH_LIBS(socket, socket)
+-      AC_SEARCH_LIBS(crypt, crypt ufc)
++      dnl AC_SEARCH_LIBS(crypt, crypt ufc)
+       AC_CHECK_LIB(truerand, main)
+       AC_SEARCH_LIBS(modf, m)
+        ;;
+@@ -767,7 +767,7 @@
+ 
+ # The real-time POSIX extensions (e.g. shm_*, sem_*) may only
+ # be available if linking against librt.
+-AC_SEARCH_LIBS(shm_open, rt)
++dnl AC_SEARCH_LIBS(shm_open, rt)  -- not used by apr
+ 
+ case $host in
+  *-sysv*)
