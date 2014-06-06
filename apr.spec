@@ -6,7 +6,7 @@ Summary:	Apache Portable Runtime
 Summary(pl.UTF-8):	Apache Portable Runtime - przenośna biblioteka uruchomieniowa
 Name:		apr
 Version:	1.5.1
-Release:	1
+Release:	2
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
@@ -32,7 +32,7 @@ BuildRequires:	rpm-pythonprov
 BuildRequires:	sed >= 4.0
 %if "%{pld_release}" != "ac"
 BuildRequires:	uname(release) >= 2.6
-Requires:	uname(release) >= 2.6.13
+Requires:	uname(release) >= 2.6.28
 %endif
 # uuid.h misdetected from this one instead of libuuid-devel
 BuildConflicts:	ossp-uuid-devel < 1.6.2-6
