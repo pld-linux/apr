@@ -5,13 +5,13 @@
 Summary:	Apache Portable Runtime
 Summary(pl.UTF-8):	Apache Portable Runtime - przenośna biblioteka uruchomieniowa
 Name:		apr
-Version:	1.5.2
+Version:	1.6.2
 Release:	1
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
 Source0:	http://www.apache.org/dist/apr/%{name}-%{version}.tar.bz2
-# Source0-md5:	4e9769f3349fe11fc0a5e1b224c236aa
+# Source0-md5:	e81a851967c79b5ce9bfbc909e4bf735
 Patch0:		%{name}-link.patch
 Patch1:		%{name}-libtool.patch
 # disable some things that require recent kernel
@@ -124,6 +124,7 @@ install /usr/share/automake/config.* build
 	--enable-nonportable-atomics \
 %endif
 %endif
+	--enable-pool-concurrency-check \
 	--enable-threads \
 	--with-devrandom=/dev/urandom
 %{__make}
