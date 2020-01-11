@@ -5,17 +5,18 @@
 Summary:	Apache Portable Runtime
 Summary(pl.UTF-8):	Apache Portable Runtime - przenośna biblioteka uruchomieniowa
 Name:		apr
-Version:	1.6.5
+Version:	1.7.0
 Release:	1
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
 Source0:	http://www.apache.org/dist/apr/%{name}-%{version}.tar.bz2
-# Source0-md5:	ad4add8efdfe87330b88e5e788241775
+# Source0-md5:	7a14a83d664e87599ea25ff4432e48a7
 Patch0:		%{name}-link.patch
 Patch1:		%{name}-libtool.patch
 # disable some things that require recent kernel
 Patch2:		%{name}-disable-features.patch
+Patch3:		x
 URL:		http://apr.apache.org/
 BuildRequires:	autoconf >= 2.59
 BuildRequires:	automake
@@ -101,6 +102,7 @@ Statyczna biblioteka apr.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 cat >> config.layout <<'EOF'
 <Layout PLD>
