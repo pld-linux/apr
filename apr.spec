@@ -5,13 +5,13 @@
 Summary:	Apache Portable Runtime
 Summary(pl.UTF-8):	Apache Portable Runtime - przenośna biblioteka uruchomieniowa
 Name:		apr
-Version:	1.7.2
+Version:	1.7.3
 Release:	1
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
 Source0:	http://www.apache.org/dist/apr/%{name}-%{version}.tar.bz2
-# Source0-md5:	9a00835e4da8c215348e263b550fc130
+# Source0-md5:	6b4ff70222c15c6aae505518e15de9dd
 Patch0:		%{name}-link.patch
 
 # disable some things that require recent kernel
