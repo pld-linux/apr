@@ -25,10 +25,14 @@ BuildRequires:	libtool >= 2:2.2
 %else
 BuildRequires:	libtool
 %endif
+%ifarch armv3l %{armv4} %{armv5} %{armv6}
+BuildRequires:	libatomic-devel
+%endif
 BuildRequires:	libuuid-devel
 BuildRequires:	python
 BuildRequires:	rpm >= 4.4.9-56
 BuildRequires:	rpm-pythonprov
+BuildRequires:	rpmbuild(macros) >= 2.007
 BuildRequires:	sed >= 4.0
 %if "%{pld_release}" != "ac"
 BuildRequires:	uname(release) >= 2.6
@@ -118,6 +122,9 @@ install /usr/share/automake/config.* build
 %{__autoconf}
 
 %configure \
+%ifarch armv3l %{armv4} %{armv5} %{armv6}
+	LIBS="-latomic" \
+%endif
 	--enable-layout=PLD \
 %ifarch %{ix86} %{x8664}
 %ifnarch i386
