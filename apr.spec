@@ -6,7 +6,7 @@ Summary:	Apache Portable Runtime
 Summary(pl.UTF-8):	Apache Portable Runtime - przenośna biblioteka uruchomieniowa
 Name:		apr
 Version:	1.7.6
-Release:	1
+Release:	2
 Epoch:		1
 License:	Apache v2.0
 Group:		Libraries
@@ -45,7 +45,7 @@ Conflicts:	kernel24-smp
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_includedir	/usr/include/apr
-%define		_datadir	/usr/share/apr
+%define		pkgdatadir	/usr/share/apr
 
 %description
 The mission of the Apache Portable Runtime (APR) project is to create
@@ -122,6 +122,7 @@ install /usr/share/automake/config.* build
 %{__autoconf}
 
 %configure \
+	--datadir=%{pkgdatadir} \
 %ifarch armv3l %{armv4} %{armv5} %{armv6}
 	LIBS="-latomic" \
 %endif
@@ -144,22 +145,22 @@ rm -rf $RPM_BUILD_ROOT
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-mv -f $RPM_BUILD_ROOT%{_datadir}/build-1 $RPM_BUILD_ROOT%{_datadir}/build
-install build/{*apr*.m4,*.awk,*.sh,gen-build.py} $RPM_BUILD_ROOT%{_datadir}/build
-ln -snf /usr/share/automake/config.{guess,sub} $RPM_BUILD_ROOT%{_datadir}/build
+%{__mv} $RPM_BUILD_ROOT%{pkgdatadir}/build-1 $RPM_BUILD_ROOT%{pkgdatadir}/build
+install build/{*apr*.m4,*.awk,*.sh,gen-build.py} $RPM_BUILD_ROOT%{pkgdatadir}/build
+ln -snf /usr/share/automake/config.{guess,sub} $RPM_BUILD_ROOT%{pkgdatadir}/build
 if [ -f /usr/share/libtool/config/ltmain.sh ]; then
-	ln -snf /usr/share/libtool/config/ltmain.sh $RPM_BUILD_ROOT%{_datadir}/build
+	ln -snf /usr/share/libtool/config/ltmain.sh $RPM_BUILD_ROOT%{pkgdatadir}/build
 else
-	ln -snf /usr/share/libtool/ltmain.sh $RPM_BUILD_ROOT%{_datadir}/build
+	ln -snf /usr/share/libtool/ltmain.sh $RPM_BUILD_ROOT%{pkgdatadir}/build
 fi
-ln -snf /usr/bin/libtool $RPM_BUILD_ROOT%{_datadir}/build
-ln -sf build $RPM_BUILD_ROOT%{_datadir}/build-1
+ln -snf /usr/bin/libtool $RPM_BUILD_ROOT%{pkgdatadir}/build
+ln -sf build $RPM_BUILD_ROOT%{pkgdatadir}/build-1
 
-sed -i -e 's@^\(APR_SOURCE_DIR=\).*@\1"%{_datadir}"@' \
+sed -i -e 's@^\(APR_SOURCE_DIR=\).*@\1"%{pkgdatadir}"@' \
 	$RPM_BUILD_ROOT%{_bindir}/apr-1-config
-sed -i -e 's@^\(apr_builddir\|apr_builders\)=.*@\1=%{_datadir}/build-1@' \
-	$RPM_BUILD_ROOT%{_datadir}/build/apr_rules.mk
-sed -i -e '1s@#!.*python@#!%{__python}@' $RPM_BUILD_ROOT%{_datadir}/build/gen-build.py
+sed -i -e 's@^\(apr_builddir\|apr_builders\)=.*@\1=%{pkgdatadir}/build-1@' \
+	$RPM_BUILD_ROOT%{pkgdatadir}/build/apr_rules.mk
+sed -i -e '1s@#!.*python@#!%{__python}@' $RPM_BUILD_ROOT%{pkgdatadir}/build/gen-build.py
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -180,16 +181,16 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libapr-1.la
 %{_libdir}/apr.exp
 %{_includedir}
-%dir %{_datadir}
-%dir %{_datadir}/build
-%{_datadir}/build/*.mk
-%{_datadir}/build/*.m4
-%{_datadir}/build/*.awk
-%attr(755,root,root) %{_datadir}/build/config.*
-%attr(755,root,root) %{_datadir}/build/*.sh
-%attr(755,root,root) %{_datadir}/build/libtool
-%attr(755,root,root) %{_datadir}/build/gen-build.py
-%{_datadir}/build-1
+%dir %{pkgdatadir}
+%dir %{pkgdatadir}/build
+%{pkgdatadir}/build/*.mk
+%{pkgdatadir}/build/*.m4
+%{pkgdatadir}/build/*.awk
+%attr(755,root,root) %{pkgdatadir}/build/config.*
+%attr(755,root,root) %{pkgdatadir}/build/*.sh
+%attr(755,root,root) %{pkgdatadir}/build/libtool
+%attr(755,root,root) %{pkgdatadir}/build/gen-build.py
+%{pkgdatadir}/build-1
 %{_pkgconfigdir}/apr-1.pc
 
 %files static
